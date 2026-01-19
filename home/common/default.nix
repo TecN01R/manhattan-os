@@ -55,30 +55,57 @@ in
 
   programs.dank-material-shell = {
     enable = true;
+    enableCalendarEvents = false;
+
+    settings = {
+      currentThemeName = "custom";
+      currentThemeCategory = "registry";
+      customThemeFile =
+        "${config.xdg.configHome}/DankMaterialShell/themes/gruvboxMaterial/theme.json";
+      registryThemeVariants = {
+        gruvboxMaterial = "hard";
+      };
+      useFahrenheit = true;
+      useAutoLocation = false;
+      use24HourClock = false;
+    };
 
     niri = {
-      enableKeybinds = true;  # optional preset binds
+      enableKeybinds = false;
       enableSpawn = true;     # auto-start DMS when niri starts
-      includes.enable = false;
+      includes = {
+        enable = true;
+        override = true;
+        originalFileName = "hm";
+        filesToInclude = [
+          "alttab"
+          "binds"
+          "colors"
+          "layout"
+          "outputs"
+          "wpblur"
+        ];
+      };
     };
   };
+
+  programs.dank-material-shell.session = {
+    weatherLocation = "Harrisville, RI 02830";
+    weatherCoordinates = "";
+  };
+
+  programs.niri.settings.input.touchpad = {
+    tap = true;
+    "tap-button-map" = "left-right-middle";
+    "click-method" = "clickfinger";
+  };
+
+  programs.niri.settings.prefer-no-csd = true;
+
 
   # Wallpaper in your home directory
   home.file.".local/share/backgrounds/my-wallpaper.jpg".source =
     "${myWallpaper}/share/backgrounds/my-wallpaper.jpg";
-
-  # GTK4 symlinks
-  home.activation.linkGtk4Theme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    themeGtk4="${gruvboxGtkCustom}/share/themes/Gruvbox-Dark-Compact-Medium/gtk-4.0"
-    dest="$HOME/.config/gtk-4.0"
-    mkdir -p "$dest"
-    for f in assets gtk.css gtk-dark.css; do
-      src="$themeGtk4/$f"
-      if [ -e "$src" ]; then
-        ln -sfT "$src" "$dest/$f"
-      fi
-    done
-  '';
 
   gtk = {
     enable = true;
@@ -91,6 +118,8 @@ in
       package = pkgs.gruvbox-plus-icons;
     };
   };
+
+  xdg.configFile."gtk-4.0/gtk.css".force = true;
 
   # GNOME dconf settings (disabled; keep for reference)
   /*

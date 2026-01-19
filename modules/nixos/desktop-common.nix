@@ -37,6 +37,9 @@ in
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
 
+  # Prefer Wayland for Electron/Chromium apps (e.g., VS Code).
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
   # Common “desktop-ish” stuff
   networking.networkmanager.enable = true;
 
@@ -66,7 +69,7 @@ in
     git
     nano
     # ptyxis
-    alacritty
+    foot
     home-manager
     # dconf-editor
     # gnome-tweaks
@@ -87,7 +90,7 @@ in
   services.greetd = {
     enable = true;
     settings.default_session = {
-      command = "${pkgs.tuigreet}/bin/tuigreet --cmd ${pkgs.niri}/bin/niri";
+      command = "${pkgs.tuigreet}/bin/tuigreet --cmd 'env XDG_SESSION_TYPE=wayland XDG_SESSION_DESKTOP=niri XDG_CURRENT_DESKTOP=niri NIXOS_OZONE_WL=1 ${pkgs.niri}/bin/niri'";
       user = "greeter";
     };
   };

@@ -14,6 +14,7 @@ in
   # Avoid recursion: home-manager user packages can depend on users.users.
   home-manager.useUserPackages = false;
   home-manager.extraSpecialArgs = { inherit inputs; };
+  home-manager.backupFileExtension = "hm-bak";
   home-manager.users = lib.mapAttrs (name: user:
     let
       userDir = ../../home;
