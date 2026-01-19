@@ -8,11 +8,19 @@
       url = "github:youwen5/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    niri = {
+      url = "github:sodiboo/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    dms = {
+      url = "github:AvengeMedia/DankMaterialShell/stable";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = inputs@{ self, nixpkgs, nix-flatpak, home-manager, ... }: let
+  outputs = inputs@{ self, nixpkgs, home-manager, ... }: let
     system = "x86_64-linux";
     pkgs = import nixpkgs {
       inherit system;
@@ -24,29 +32,19 @@
     # NixOS system config
     nixosConfigurations.legion-laptop = nixpkgs.lib.nixosSystem {
       inherit system;
-      
       specialArgs = { inherit inputs; };
 
       modules = [
-        nix-flatpak.nixosModules.nix-flatpak
-
-        home-manager.nixosModules.home-manager
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.users.kpmcdole = import ./home/kpmcdole.nix;
-        }
-
-        ./hosts/legion-laptop.nix
-        ./modules/desktop-common.nix
+        ./hosts/legion-laptop
       ];
     };
 
-    # Home Manager config for CLI: home-manager switch --flake /etc/nixos#kpmcdole
+    # Home Manager config for CLI: home-manager switch --flake .#kpmcdole
     homeConfigurations.kpmcdole = home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
+      extraSpecialArgs = { inherit inputs; };
       modules = [
-        ./home/kpmcdole.nix
+        ./home/kpmcdole
       ];
     };
   };

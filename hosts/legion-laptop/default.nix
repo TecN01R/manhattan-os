@@ -1,8 +1,14 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   imports = [
-    ./hardware-configuration.nix
+    inputs.nix-flatpak.nixosModules.nix-flatpak
+    inputs.niri.nixosModules.niri
+    inputs.home-manager.nixosModules.home-manager
+
+    ./hardware.nix
+    ../../modules/nixos/desktop-common.nix
+    ../../modules/nixos/home-manager.nix
   ];
 
   networking.hostName = "legion-laptop";

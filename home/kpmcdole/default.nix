@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, inputs, ... }:
 
 let
   gv = lib.hm.gvariant;
@@ -50,6 +50,21 @@ in
   # Home Manager–level configuration
   home.username = "kpmcdole";
   home.homeDirectory = "/home/kpmcdole";
+
+  # Import DMS
+  imports = [    
+    inputs.dms.homeModules.dank-material-shell
+    inputs.dms.homeModules.niri
+  ];
+
+  programs.dank-material-shell = {
+    enable = true;
+
+    niri = {
+      enableKeybinds = true;  # optional preset binds
+      enableSpawn = true;     # auto-start DMS when niri starts
+    };
+  };
 
   # Wallpaper in your home directory
   home.file.".local/share/backgrounds/my-wallpaper.jpg".source =
