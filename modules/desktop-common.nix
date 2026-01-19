@@ -1,5 +1,32 @@
 { config, pkgs, ... }:
 
+let
+  zen = pkgs.wrapFirefox
+    inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.zen-browser-unwrapped
+    {
+      extraPolicies = {
+        DisableTelemetry = true;
+
+        # Install the same extensions you currently force-install in Firefox
+        ExtensionSettings = {
+          "addon@darkreader.org" = {
+            installation_mode = "force_installed";
+            install_url = "https://addons.mozilla.org/firefox/downloads/latest/darkreader/latest.xpi";
+          };
+
+          "adguardadblocker@adguard.com" = {
+            installation_mode = "force_installed";
+            install_url = "https://addons.mozilla.org/firefox/downloads/latest/adguard-adblocker/latest.xpi";
+          };
+        };
+      };
+
+      # optional: lock some prefs (same technique shown on the wiki)
+      extraPrefs = lib.concatLines [
+        ''lockPref("extensions.pocket.enabled", false);''
+      ];
+    };
+in
 {
   # Global Nix settings
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -30,6 +57,7 @@
 
   # System packages (shared / non-user-specific)
   environment.systemPackages = with pkgs; [
+    zen
     git
     nano
     ptyxis
@@ -37,8 +65,6 @@
     dconf-editor
     gnome-tweaks
     gnome-extension-manager
-    resources
-    refine
 
     gnomeExtensions.alphabetical-app-grid
     gnomeExtensions.just-perfection
@@ -46,30 +72,6 @@
     gnomeExtensions.user-themes
     gnomeExtensions.hot-edge
   ];
-
-  # Firefox
-  programs.firefox = {
-    enable = true;
-
-    policies = {
-      ExtensionSettings = {
-
-        # Dark Reader
-        "addon@darkreader.org" = {
-          installation_mode = "force_installed";
-          install_url =
-            "https://addons.mozilla.org/firefox/downloads/latest/darkreader/latest.xpi";
-        };
-
-        # AdGuard AdBlocker
-        "adguardadblocker@adguard.com" = {
-          installation_mode = "force_installed";
-          install_url =
-            "https://addons.mozilla.org/firefox/downloads/latest/adguard-adblocker/latest.xpi";
-        };
-      };
-    };
-  };
 
   # GNOME Desktop
   services.displayManager.gdm.enable = true;
