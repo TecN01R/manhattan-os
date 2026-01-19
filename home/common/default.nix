@@ -59,6 +59,7 @@ in
     niri = {
       enableKeybinds = true;  # optional preset binds
       enableSpawn = true;     # auto-start DMS when niri starts
+      includes.enable = false;
     };
   };
 

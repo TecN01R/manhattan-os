@@ -87,7 +87,7 @@ in
   services.greetd = {
     enable = true;
     settings.default_session = {
-      command = "${pkgs.greetd.tuigreet}/bin/tuigreet --cmd ${pkgs.niri}/bin/niri";
+      command = "${pkgs.tuigreet}/bin/tuigreet --cmd ${pkgs.niri}/bin/niri";
       user = "greeter";
     };
   };
