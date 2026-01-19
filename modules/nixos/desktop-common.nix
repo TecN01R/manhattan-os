@@ -28,6 +28,11 @@ let
     };
 in
 {
+  imports = [
+    inputs.nix-flatpak.nixosModules.nix-flatpak
+    inputs.niri.nixosModules.niri
+  ];
+
   # Global Nix settings
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
@@ -77,6 +82,14 @@ in
   programs.niri = {
     enable = true;
     package = pkgs.niri; # <-- use nixpkgs build (cache.nixos.org)
+  };
+
+  services.greetd = {
+    enable = true;
+    settings.default_session = {
+      command = "${pkgs.greetd.tuigreet}/bin/tuigreet --cmd ${pkgs.niri}/bin/niri";
+      user = "greeter";
+    };
   };
     
   # # GNOME Desktop
