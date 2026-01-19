@@ -11,7 +11,8 @@ in
   ];
 
   home-manager.useGlobalPkgs = true;
-  home-manager.useUserPackages = true;
+  # Avoid recursion: home-manager user packages can depend on users.users.
+  home-manager.useUserPackages = false;
   home-manager.extraSpecialArgs = { inherit inputs; };
   home-manager.users = lib.mapAttrs (name: user:
     let
