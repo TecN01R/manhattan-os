@@ -12,7 +12,7 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, nix-flatpak, home-manager, ... }: let
+  outputs = inputs@{ self, nixpkgs, nix-flatpak, home-manager, ... }: let
     system = "x86_64-linux";
     pkgs = import nixpkgs {
       inherit system;
@@ -24,6 +24,8 @@
     # NixOS system config
     nixosConfigurations.legion-laptop = nixpkgs.lib.nixosSystem {
       inherit system;
+      
+      specialArgs = { inherit inputs; };
 
       modules = [
         nix-flatpak.nixosModules.nix-flatpak

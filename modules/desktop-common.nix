@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, input, ... }:
 
 let
   zen = pkgs.wrapFirefox
