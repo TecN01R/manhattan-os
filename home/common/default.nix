@@ -45,10 +45,11 @@ let
       runHook postInstall
     '';
   };
+
 in
 {
   # Import DMS
-  imports = [    
+  imports = [
     inputs.dms.homeModules.dank-material-shell
     inputs.dms.homeModules.niri
   ];
@@ -66,16 +67,16 @@ in
         gruvboxMaterial = "hard";
       };
       useFahrenheit = true;
-      useAutoLocation = false;
+      useAutoLocation = true;
       use24HourClock = false;
     };
 
     niri = {
-      enableKeybinds = false;
+      enableKeybinds = true;
       enableSpawn = true;     # auto-start DMS when niri starts
       includes = {
         enable = true;
-        override = true;
+        override = false;
         originalFileName = "hm";
         filesToInclude = [
           "alttab"
@@ -89,10 +90,7 @@ in
     };
   };
 
-  programs.dank-material-shell.session = {
-    weatherLocation = "Harrisville, RI 02830";
-    weatherCoordinates = "";
-  };
+  programs.dank-material-shell.session = {};
 
   programs.niri.settings.input.touchpad = {
     tap = true;
@@ -101,7 +99,6 @@ in
   };
 
   programs.niri.settings.prefer-no-csd = true;
-
 
   # Wallpaper in your home directory
   home.file.".local/share/backgrounds/my-wallpaper.jpg".source =
@@ -120,6 +117,21 @@ in
   };
 
   xdg.configFile."gtk-4.0/gtk.css".force = true;
+
+  xdg.configFile."niri/dms/binds.kdl" = {
+    source = ./niri-default-binds.kdl;
+    force = true;
+  };
+
+  home.activation.ensureNiriDmsFiles = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    dms_dir="${config.xdg.configHome}/niri/dms"
+    mkdir -p "$dms_dir"
+    for file in alttab colors layout outputs wpblur; do
+      if [ ! -e "$dms_dir/$file.kdl" ]; then
+        touch "$dms_dir/$file.kdl"
+      fi
+    done
+  '';
 
   # GNOME dconf settings (disabled; keep for reference)
   /*

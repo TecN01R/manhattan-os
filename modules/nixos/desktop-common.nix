@@ -71,6 +71,7 @@ in
     # ptyxis
     foot
     home-manager
+    nautilus
     # dconf-editor
     # gnome-tweaks
     # gnome-extension-manager
