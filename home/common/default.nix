@@ -2,6 +2,7 @@
 
 let
   gv = lib.hm.gvariant;
+  dmsManageSettings = false;
 
   myWallpaper = pkgs.stdenv.mkDerivation {
     pname = "custom-wallpaper";
@@ -58,19 +59,6 @@ in
     enable = true;
     enableCalendarEvents = false;
 
-    settings = {
-      currentThemeName = "custom";
-      currentThemeCategory = "registry";
-      customThemeFile =
-        "${config.xdg.configHome}/DankMaterialShell/themes/gruvboxMaterial/theme.json";
-      registryThemeVariants = {
-        gruvboxMaterial = "hard";
-      };
-      useFahrenheit = true;
-      useAutoLocation = true;
-      use24HourClock = false;
-    };
-
     niri = {
       enableKeybinds = true;
       enableSpawn = true;     # auto-start DMS when niri starts
@@ -87,6 +75,21 @@ in
           "wpblur"
         ];
       };
+    };
+  } // lib.optionalAttrs dmsManageSettings {
+    settings = {
+      currentThemeName = "custom";
+      currentThemeCategory = "registry";
+      customThemeFile =
+        "${config.xdg.configHome}/DankMaterialShell/themes/gruvboxMaterial/theme.json";
+      registryThemeVariants = {
+        gruvboxMaterial = "hard";
+      };
+      useFahrenheit = true;
+      useAutoLocation = true;
+      use24HourClock = false;
+      runDmsMatugenTemplates = true;
+      matugenTemplateNiri = true;
     };
   };
 
