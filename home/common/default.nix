@@ -58,6 +58,7 @@ in
   programs.dank-material-shell = {
     enable = true;
     enableCalendarEvents = false;
+    session = {};
 
     niri = {
       enableKeybinds = true;
@@ -92,8 +93,6 @@ in
       matugenTemplateNiri = true;
     };
   };
-
-  programs.dank-material-shell.session = {};
 
   programs.niri.settings.input.touchpad = {
     tap = true;
