@@ -38,6 +38,11 @@ in
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
 
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+  };
+
   # Prefer Wayland for Electron/Chromium apps (e.g., VS Code).
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
@@ -48,6 +53,9 @@ in
   services.fprintd.enable = true;
   services.power-profiles-daemon.enable = true;
   services.upower.enable = true;
+  services.logind.extraConfig = ''
+    LockOnSuspend=yes
+  '';
   hardware.i2c.enable = true;
   users.groups.i2c = { };
 
@@ -78,6 +86,7 @@ in
     nano
     home-manager
     i2c-tools
+    xwayland-satellite
     nautilus
     alacritty
     # dconf-editor

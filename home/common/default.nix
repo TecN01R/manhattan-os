@@ -110,6 +110,7 @@ in
 
   programs.niri.settings.layout = {
     gaps = focusRingWidth;
+    center-focused-column = "always";
     focus-ring = {
       enable = true;
       width = focusRingWidth;

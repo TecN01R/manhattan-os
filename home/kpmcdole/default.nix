@@ -1,14 +1,22 @@
 { pkgs, ... }:
 
+let
+  steamWithExtest = pkgs.steam.override {
+    extraEnv = {
+      LD_PRELOAD = "${pkgs.pkgsi686Linux.extest}/lib/libextest.so";
+    };
+  };
+in
 {
   home.packages = with pkgs; [
     vscode
     github-desktop
     blender
     godot
-    steam
+    steamWithExtest
     caprine
     discord
     obsidian
+    slack
   ];
 }
