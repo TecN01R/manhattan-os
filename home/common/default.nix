@@ -2,11 +2,7 @@
 
 let
   gv = lib.hm.gvariant;
-  shell = "noctalia";
-  shellModule =
-    if shell == "noctalia"
-    then ./shell/noctalia-shell.nix
-    else ./shell/dank-material-shell.nix;
+  dmsManageSettings = false;
 
   myWallpaper = pkgs.stdenv.mkDerivation {
     pname = "custom-wallpaper";
@@ -53,7 +49,50 @@ let
 
 in
 {
-  imports = [ shellModule ];
+  # Import DMS
+  imports = [
+    inputs.dms.homeModules.dank-material-shell
+    inputs.dms.homeModules.niri
+  ];
+
+  programs.dank-material-shell = {
+    enable = true;
+    enableCalendarEvents = false;
+    session = {};
+
+    niri = {
+      enableKeybinds = true;
+      enableSpawn = true;     # auto-start DMS when niri starts
+      includes = {
+        enable = true;
+        override = false;
+        originalFileName = "hm";
+        filesToInclude = [
+          "alttab"
+          "binds"
+          "colors"
+          "layout"
+          "outputs"
+          "wpblur"
+        ];
+      };
+    };
+  } // lib.optionalAttrs dmsManageSettings {
+    settings = {
+      currentThemeName = "custom";
+      currentThemeCategory = "registry";
+      customThemeFile =
+        "${config.xdg.configHome}/DankMaterialShell/themes/gruvboxMaterial/theme.json";
+      registryThemeVariants = {
+        gruvboxMaterial = "hard";
+      };
+      useFahrenheit = true;
+      useAutoLocation = true;
+      use24HourClock = false;
+      runDmsMatugenTemplates = true;
+      matugenTemplateNiri = true;
+    };
+  };
 
   programs.niri.settings.input.touchpad = {
     tap = true;
@@ -62,10 +101,6 @@ in
   };
 
   programs.niri.settings.prefer-no-csd = true;
-  programs.niri.settings.xwayland-satellite = {
-    enable = true;
-    path = lib.getExe inputs.niri.packages.${pkgs.system}.xwayland-satellite-stable;
-  };
 
   # Wallpaper in your home directory
   home.file.".local/share/backgrounds/my-wallpaper.jpg".source =
@@ -84,6 +119,21 @@ in
   };
 
   xdg.configFile."gtk-4.0/gtk.css".force = true;
+
+  xdg.configFile."niri/dms/binds.kdl" = {
+    source = ./niri-default-binds.kdl;
+    force = true;
+  };
+
+  home.activation.ensureNiriDmsFiles = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    dms_dir="${config.xdg.configHome}/niri/dms"
+    mkdir -p "$dms_dir"
+    for file in alttab colors layout outputs wpblur; do
+      if [ ! -e "$dms_dir/$file.kdl" ]; then
+        touch "$dms_dir/$file.kdl"
+      fi
+    done
+  '';
 
   # GNOME dconf settings (disabled; keep for reference)
   /*
