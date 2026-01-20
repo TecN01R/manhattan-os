@@ -87,11 +87,6 @@ in
 
   programs.niri.settings.prefer-no-csd = true;
 
-  programs.mangohud = {
-    enable = true;
-    enableSessionWide = true;
-  };
-
   programs.niri.settings.layout = {
     gaps = focusRingWidth;
     center-focused-column = "always";

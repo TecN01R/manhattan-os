@@ -55,12 +55,14 @@ in
     theme = "nixos-bgrt";
     themePackages = [ pkgs.nixos-bgrt-plymouth ];
   };
+  
   boot.initrd.verbose = false;
   boot.kernelParams = [ "quiet" "splash" ];
   boot.loader.systemd-boot.configurationLimit = 10;
 
   # Prefer Wayland for Electron/Chromium apps (e.g., VS Code).
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
+  environment.sessionVariables.MANGOHUD = "1";
 
   # Common “desktop-ish” stuff
   networking.networkmanager.enable = true;
@@ -107,6 +109,7 @@ in
     xwayland-satellite
     nautilus
     ghostty
+    mangohud
     # dconf-editor
     # gnome-tweaks
     # gnome-extension-manager

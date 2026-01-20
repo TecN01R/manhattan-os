@@ -11,6 +11,7 @@
     discord
     obsidian
     slack
+    openrgb
   ];
 
   programs.dank-material-shell.session = lib.importJSON ./dms-session.json;
