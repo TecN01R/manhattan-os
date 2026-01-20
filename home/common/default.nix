@@ -93,7 +93,7 @@ in
 
   programs.niri.settings.layout = {
     gaps = focusRingWidth;
-    center-focused-column = "on-overflow";
+    center-focused-column = "always";
     focus-ring = {
       enable = true;
       width = focusRingWidth;
@@ -132,6 +132,11 @@ in
   };
 
   xdg.configFile."gtk-4.0/gtk.css".force = true;
+
+  xdg.configFile."DankMaterialShell/themes/gruvboxMaterial/theme.json" = {
+    source = ./dms-themes/gruvboxMaterial/theme.json;
+    force = true;
+  };
 
 
   home.activation.bootstrapDmsNiriDefaults = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

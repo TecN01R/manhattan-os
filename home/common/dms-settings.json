@@ -1,7 +1,7 @@
 {
-  "currentThemeName": "gruvboxMaterial",
+  "currentThemeName": "custom",
   "currentThemeCategory": "registry",
-  "customThemeFile": "",
+  "customThemeFile": "/home/kpmcdole/.config/DankMaterialShell/themes/gruvboxMaterial/theme.json",
   "registryThemeVariants": {
     "gruvboxMaterial": "hard"
   },
@@ -67,43 +67,43 @@
   "privacyShowScreenShareIcon": false,
   "controlCenterWidgets": [
     {
+      "enabled": true,
       "id": "volumeSlider",
-      "enabled": true,
       "width": 50
     },
     {
+      "enabled": true,
       "id": "brightnessSlider",
-      "enabled": true,
       "width": 50
     },
     {
+      "enabled": true,
       "id": "wifi",
-      "enabled": true,
       "width": 50
     },
     {
+      "enabled": true,
       "id": "bluetooth",
-      "enabled": true,
       "width": 50
     },
     {
+      "enabled": true,
       "id": "audioOutput",
-      "enabled": true,
       "width": 50
     },
     {
+      "enabled": true,
       "id": "audioInput",
-      "enabled": true,
       "width": 50
     },
     {
+      "enabled": true,
       "id": "nightMode",
-      "enabled": true,
       "width": 50
     },
     {
-      "id": "darkMode",
       "enabled": true,
+      "id": "darkMode",
       "width": 50
     }
   ],
@@ -152,20 +152,20 @@
   "vpnLastConnected": "",
   "iconTheme": "System Default",
   "cursorSettings": {
-    "theme": "System Default",
-    "size": 24,
-    "niri": {
-      "hideWhenTyping": false,
-      "hideAfterInactiveMs": 0
+    "dwl": {
+      "cursorHideTimeout": 0
     },
     "hyprland": {
       "hideOnKeyPress": false,
       "hideOnTouch": false,
       "inactiveTimeout": 0
     },
-    "dwl": {
-      "cursorHideTimeout": 0
-    }
+    "niri": {
+      "hideAfterInactiveMs": 0,
+      "hideWhenTyping": false
+    },
+    "size": 24,
+    "theme": "System Default"
   },
   "launcherLogoMode": "os",
   "launcherLogoCustomPath": "",
@@ -320,110 +320,110 @@
   "hyprlandOutputSettings": {},
   "barConfigs": [
     {
-      "id": "default",
-      "name": "Main Bar",
-      "enabled": true,
-      "position": 0,
-      "screenPreferences": [
-        "all"
-      ],
-      "showOnLastDisplay": true,
-      "leftWidgets": [
-        {
-          "id": "launcherButton",
-          "enabled": true
-        },
-        {
-          "id": "workspaceSwitcher",
-          "enabled": true
-        },
-        {
-          "id": "runningApps",
-          "enabled": true,
-          "runningAppsCompactMode": true
-        },
-        {
-          "id": "focusedWindow",
-          "enabled": true
-        }
-      ],
+      "autoHide": false,
+      "autoHideDelay": 250,
+      "borderColor": "surfaceText",
+      "borderEnabled": false,
+      "borderOpacity": 1,
+      "borderThickness": 1,
+      "bottomGap": 0,
       "centerWidgets": [
         "music",
         "clock",
         "weather"
       ],
-      "rightWidgets": [
-        {
-          "id": "systemTray",
-          "enabled": true
-        },
-        {
-          "id": "clipboard",
-          "enabled": true
-        },
-        {
-          "id": "colorPicker",
-          "enabled": true
-        },
-        {
-          "id": "cpuUsage",
-          "enabled": true,
-          "minimumWidth": false
-        },
-        {
-          "id": "memUsage",
-          "enabled": true,
-          "minimumWidth": false
-        },
-        {
-          "id": "notificationButton",
-          "enabled": true
-        },
-        {
-          "id": "battery",
-          "enabled": true
-        },
-        {
-          "id": "controlCenterButton",
-          "enabled": true,
-          "showBrightnessIcon": false,
-          "showBatteryIcon": false
-        }
-      ],
-      "spacing": 0,
-      "innerPadding": 0,
-      "bottomGap": 0,
-      "transparency": 1,
-      "widgetTransparency": 1,
-      "squareCorners": false,
-      "noBackground": false,
-      "gothCornersEnabled": false,
+      "enabled": true,
+      "fontScale": 1,
       "gothCornerRadiusOverride": false,
       "gothCornerRadiusValue": 12,
-      "borderEnabled": false,
-      "borderColor": "surfaceText",
-      "borderOpacity": 1,
-      "borderThickness": 1,
-      "widgetOutlineEnabled": false,
-      "widgetOutlineColor": "primary",
-      "widgetOutlineOpacity": 1,
-      "widgetOutlineThickness": 1,
-      "fontScale": 1,
-      "autoHide": false,
-      "autoHideDelay": 250,
-      "showOnWindowsOpen": false,
+      "gothCornersEnabled": false,
+      "id": "default",
+      "innerPadding": 0,
+      "leftWidgets": [
+        {
+          "enabled": true,
+          "id": "launcherButton"
+        },
+        {
+          "enabled": true,
+          "id": "workspaceSwitcher"
+        },
+        {
+          "enabled": true,
+          "id": "runningApps",
+          "runningAppsCompactMode": true
+        },
+        {
+          "enabled": true,
+          "id": "focusedWindow"
+        }
+      ],
+      "maximizeDetection": true,
+      "name": "Main Bar",
+      "noBackground": false,
       "openOnOverview": true,
-      "visible": true,
       "popupGapsAuto": true,
       "popupGapsManual": 4,
-      "maximizeDetection": true,
+      "position": 0,
+      "rightWidgets": [
+        {
+          "enabled": true,
+          "id": "systemTray"
+        },
+        {
+          "enabled": true,
+          "id": "clipboard"
+        },
+        {
+          "enabled": true,
+          "id": "colorPicker"
+        },
+        {
+          "enabled": true,
+          "id": "cpuUsage",
+          "minimumWidth": false
+        },
+        {
+          "enabled": true,
+          "id": "memUsage",
+          "minimumWidth": false
+        },
+        {
+          "enabled": true,
+          "id": "notificationButton"
+        },
+        {
+          "enabled": true,
+          "id": "battery"
+        },
+        {
+          "enabled": true,
+          "id": "controlCenterButton",
+          "showBatteryIcon": false,
+          "showBrightnessIcon": false
+        }
+      ],
+      "screenPreferences": [
+        "all"
+      ],
       "scrollEnabled": true,
       "scrollXBehavior": "column",
       "scrollYBehavior": "workspace",
+      "shadowColorMode": "text",
+      "shadowCustomColor": "#000000",
       "shadowIntensity": 0,
       "shadowOpacity": 60,
-      "shadowColorMode": "text",
-      "shadowCustomColor": "#000000"
+      "showOnLastDisplay": true,
+      "showOnWindowsOpen": false,
+      "spacing": 0,
+      "squareCorners": false,
+      "transparency": 1,
+      "visible": true,
+      "widgetOutlineColor": "primary",
+      "widgetOutlineEnabled": false,
+      "widgetOutlineOpacity": 1,
+      "widgetOutlineThickness": 1,
+      "widgetTransparency": 1
     }
   ],
   "desktopClockEnabled": false,
