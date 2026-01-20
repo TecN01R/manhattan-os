@@ -59,7 +59,7 @@ in
   programs.niri.settings.prefer-no-csd = true;
   programs.niri.settings.xwayland-satellite = {
     enable = true;
-    path = lib.getExe inputs.niri.packages.${pkgs.system}.xwayland-satellite-stable;
+    path = lib.getExe inputs.niri.packages.${pkgs.stdenv.hostPlatform.system}.xwayland-satellite-stable;
   };
 
   # Wallpaper in your home directory
