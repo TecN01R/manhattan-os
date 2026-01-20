@@ -63,6 +63,11 @@ in
     variant = "";
   };
 
+  # programs.steam = {
+  #   enable = pkgs.stdenv.hostPlatform.isx86_64;
+  #   extest.enable = true;
+  # };
+
   # System packages (shared / non-user-specific)
   environment.systemPackages = with pkgs; [
     zen
