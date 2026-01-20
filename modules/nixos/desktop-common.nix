@@ -50,6 +50,10 @@ in
   networking.networkmanager.enable = true;
 
   services.accounts-daemon.enable = true;
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+  };
   services.fprintd.enable = true;
   services.power-profiles-daemon.enable = true;
   services.upower.enable = true;

@@ -2,7 +2,6 @@
 
 let
   gv = lib.hm.gvariant;
-  dmsManageSettings = false;
   focusRingWidth = 2;
 
   myWallpaper = pkgs.stdenv.mkDerivation {
@@ -63,6 +62,7 @@ in
       wallpaperPath =
         "${config.home.homeDirectory}/.local/share/backgrounds/my-wallpaper.jpg";
     };
+    settings = lib.importJSON ./dms-settings.json;
 
     niri = {
       enableKeybinds = true;
@@ -80,21 +80,6 @@ in
           "wpblur"
         ];
       };
-    };
-  } // lib.optionalAttrs dmsManageSettings {
-    settings = {
-      currentThemeName = "custom";
-      currentThemeCategory = "registry";
-      customThemeFile =
-        "${config.xdg.configHome}/DankMaterialShell/themes/gruvboxMaterial/theme.json";
-      registryThemeVariants = {
-        gruvboxMaterial = "hard";
-      };
-      useFahrenheit = true;
-      useAutoLocation = true;
-      use24HourClock = false;
-      runDmsMatugenTemplates = true;
-      matugenTemplateNiri = true;
     };
   };
 
@@ -147,6 +132,7 @@ in
   };
 
   xdg.configFile."gtk-4.0/gtk.css".force = true;
+
 
   home.activation.bootstrapDmsNiriDefaults = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     dms_dir="${config.xdg.configHome}/niri/dms"
