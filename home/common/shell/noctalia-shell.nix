@@ -1,14 +1,14 @@
-{ inputs, lib, ... }:
-let
-  kdl = inputs.niri.lib.kdl;
-in {
+{ inputs, ... }:
+{
   imports = [
     inputs.noctalia.homeModules.default
   ];
 
   programs.noctalia-shell.enable = true;
 
-  programs.niri.config = lib.mkAfter [
-    (kdl.leaf "spawn-at-startup" [ "qs" "-c" "noctalia-shell" ])
+  programs.niri.settings.spawn-at-startup = [
+    {
+      command = [ "qs" "-c" "noctalia-shell" ];
+    }
   ];
 }
