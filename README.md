@@ -64,6 +64,6 @@ All normal users get `home/common`.
 If `home/<username>/default.nix` exists, it is layered automatically.
 
 ## Shell module
-Shell-specific config is isolated under `home/common/shell/`.
-To switch shells, update `shell = "dms"` in `home/common/default.nix` and add the
-matching flake input/module wiring (see the stub in `home/common/shell/noctalia-shell.nix`).
+Shell-specific config is isolated under `home/common/shell/` and currently uses Noctalia.
+If you add another shell later, update `home/common/default.nix` to import it and
+add its flake input/module wiring in that module file.

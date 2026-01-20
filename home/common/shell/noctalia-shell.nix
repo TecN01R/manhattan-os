@@ -1,7 +1,14 @@
 { inputs, ... }:
 {
-  # TODO: Wire Noctalia Shell here once the flake input is added.
-  # Example:
-  # imports = [ inputs.noctalia.homeModules.noctalia-shell ];
-  # programs.noctalia-shell.enable = true;
+  imports = [
+    inputs.noctalia.homeModules.default
+  ];
+
+  programs.noctalia-shell.enable = true;
+
+  programs.niri.settings.spawn-at-startup = [
+    {
+      command = [ "qs" "-c" "noctalia-shell" ];
+    }
+  ];
 }

@@ -1,12 +1,7 @@
 { config, pkgs, lib, inputs, ... }:
 
 let
-  gv = lib.hm.gvariant;
-  shell = "noctalia";
-  shellModule =
-    if shell == "noctalia"
-    then ./shell/noctalia-shell.nix
-    else ./shell/dank-material-shell.nix;
+  shellModule = ./shell/noctalia-shell.nix;
 
   myWallpaper = pkgs.stdenv.mkDerivation {
     pname = "custom-wallpaper";
