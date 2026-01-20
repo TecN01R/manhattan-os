@@ -3,6 +3,7 @@
 let
   gv = lib.hm.gvariant;
   dmsManageSettings = false;
+  focusRingWidth = 2;
 
   myWallpaper = pkgs.stdenv.mkDerivation {
     pname = "custom-wallpaper";
@@ -58,7 +59,10 @@ in
   programs.dank-material-shell = {
     enable = true;
     enableCalendarEvents = false;
-    session = {};
+    session = {
+      wallpaperPath =
+        "${config.home.homeDirectory}/.local/share/backgrounds/my-wallpaper.jpg";
+    };
 
     niri = {
       enableKeybinds = true;
@@ -100,7 +104,32 @@ in
     "click-method" = "clickfinger";
   };
 
+  # programs.niri.settings.input.focus-follows-mouse.enable = true;
+
   programs.niri.settings.prefer-no-csd = true;
+
+  programs.niri.settings.layout = {
+    gaps = focusRingWidth;
+    focus-ring = {
+      enable = true;
+      width = focusRingWidth;
+    };
+    border.enable = false;
+  };
+
+  programs.niri.settings."window-rules" = [
+    {
+      matches = [ ];
+      excludes = [ ];
+      geometry-corner-radius = {
+        top-left = 10.0;
+        top-right = 10.0;
+        bottom-right = 10.0;
+        bottom-left = 10.0;
+      };
+      clip-to-geometry = true;
+    }
+  ];
 
   # Wallpaper in your home directory
   home.file.".local/share/backgrounds/my-wallpaper.jpg".source =

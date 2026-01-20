@@ -31,6 +31,7 @@ in
   imports = [
     inputs.nix-flatpak.nixosModules.nix-flatpak
     inputs.niri.nixosModules.niri
+    inputs.dms.nixosModules.greeter
   ];
 
   # Global Nix settings
@@ -42,6 +43,13 @@ in
 
   # Common “desktop-ish” stuff
   networking.networkmanager.enable = true;
+
+  services.accounts-daemon.enable = true;
+  services.fprintd.enable = true;
+  services.power-profiles-daemon.enable = true;
+  services.upower.enable = true;
+  hardware.i2c.enable = true;
+  users.groups.i2c = { };
 
   time.timeZone = "America/New_York";
 
@@ -68,10 +76,10 @@ in
     zen
     git
     nano
-    # ptyxis
-    foot
     home-manager
+    i2c-tools
     nautilus
+    alacritty
     # dconf-editor
     # gnome-tweaks
     # gnome-extension-manager
@@ -88,12 +96,10 @@ in
     package = pkgs.niri; # <-- use nixpkgs build (cache.nixos.org)
   };
 
-  services.greetd = {
+  programs.dank-material-shell.greeter = {
     enable = true;
-    settings.default_session = {
-      command = "${pkgs.tuigreet}/bin/tuigreet --cmd 'env XDG_SESSION_TYPE=wayland XDG_SESSION_DESKTOP=niri XDG_CURRENT_DESKTOP=niri NIXOS_OZONE_WL=1 ${pkgs.niri}/bin/niri'";
-      user = "greeter";
-    };
+    compositor.name = "niri";
+    configHome = "/home/kpmcdole";
   };
     
   # # GNOME Desktop
