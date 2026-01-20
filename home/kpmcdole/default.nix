@@ -19,4 +19,9 @@ in
     obsidian
     slack
   ];
+
+  programs.mangohud = {
+    enable = true;
+    enableSessionWide = true;
+  };
 }

@@ -41,6 +41,8 @@ in
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
+    extraPackages = [ pkgs.mangohud ];
+    extraPackages32 = [ pkgs.pkgsi686Linux.mangohud ];
   };
 
   # Prefer Wayland for Electron/Chromium apps (e.g., VS Code).
