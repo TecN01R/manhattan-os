@@ -2,9 +2,6 @@
 
 let
   kdl = inputs.niri.lib.kdl;
-  defaultNiriModule = import (inputs.niri + "/default-config.kdl.nix") inputs;
-  defaultNiriConfig =
-    (defaultNiriModule { inherit pkgs lib; config = {}; }).programs.niri.config;
   shellModule = ./shell/noctalia-shell.nix;
 
   myWallpaper = pkgs.stdenv.mkDerivation {
@@ -53,48 +50,25 @@ let
 in
 {
   imports = [
+    inputs.niri.homeModules.config
+    (import (inputs.niri + "/default-config.kdl.nix") inputs)
     shellModule
   ];
 
-  programs.niri.config =
-    let
-      touchpadOverrides =
-        [ "tap-button-map" "click-method" ];
-      updatedDefaults =
-        map (node:
-          if node.name == "input" then
-            node // {
-              children = map (child:
-                if child.name == "touchpad" then
-                  child // {
-                    children =
-                      (lib.filter (n: !(lib.elem n.name touchpadOverrides)) child.children)
-                      ++ [
-                        (kdl.leaf "tap-button-map" "left-right-middle")
-                        (kdl.leaf "click-method" "clickfinger")
-                      ];
-                  }
-                else
-                  child
-              ) node.children;
-            }
-          else
-            node
-        ) defaultNiriConfig;
-    in
-    lib.mkForce (
-      updatedDefaults
-      ++ [
-        (kdl.flag "prefer-no-csd")
-        (kdl.plain "xwayland-satellite" [
-          (kdl.leaf "path"
-            (lib.getExe inputs.niri.packages.${pkgs.stdenv.hostPlatform.system}.xwayland-satellite-stable))
-        ])
-        (kdl.leaf "spawn-at-startup" [
-          (lib.getExe config.programs.noctalia-shell.package)
-        ])
-      ]
-    );
+  programs.niri.config = lib.mkAfter [
+    (kdl.plain "input" [
+      (kdl.plain "touchpad" [
+        (kdl.flag "tap")
+        (kdl.leaf "tap-button-map" "left-right-middle")
+        (kdl.leaf "click-method" "clickfinger")
+      ])
+    ])
+    (kdl.flag "prefer-no-csd")
+    (kdl.plain "xwayland-satellite" [
+      (kdl.leaf "path"
+        (lib.getExe inputs.niri.packages.${pkgs.stdenv.hostPlatform.system}.xwayland-satellite-stable))
+    ])
+  ];
 
   # Wallpaper in your home directory
   home.file.".local/share/backgrounds/my-wallpaper.jpg".source =

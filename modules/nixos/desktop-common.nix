@@ -73,10 +73,10 @@ in
     zen
     git
     nano
+    # ptyxis
+    foot
     home-manager
     nautilus
-    swaylock
-    alacritty
     # dconf-editor
     # gnome-tweaks
     # gnome-extension-manager
