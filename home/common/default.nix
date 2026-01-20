@@ -87,6 +87,11 @@ in
 
   programs.niri.settings.prefer-no-csd = true;
 
+  programs.mangohud = {
+    enable = true;
+    enableSessionWide = true;
+  };
+
   programs.niri.settings.layout = {
     gaps = focusRingWidth;
     center-focused-column = "always";
@@ -134,33 +139,13 @@ in
     force = true;
   };
 
-  xdg.configFile."quickshell/hot-edge/shell.qml".source =
-    ./quickshell/hot-edge/shell.qml;
-
-  systemd.user.services.hot-edge = {
-    Unit = {
-      Description = "Hot edge trigger for niri overview";
-      PartOf = [ "graphical-session.target" ];
-      After = [ "graphical-session.target" ];
-    };
-    Service = {
-      ExecStart = "${config.home.profileDirectory}/bin/qs --no-duplicate -c hot-edge";
-      Restart = "on-failure";
-      RestartSec = 1;
-    };
-    Install = {
-      WantedBy = [ "graphical-session.target" ];
-    };
-  };
-
-
   home.activation.bootstrapDmsNiriDefaults = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     dms_dir="${config.xdg.configHome}/niri/dms"
     mkdir -p "$dms_dir"
 
     if [ ! -f "$dms_dir/binds.kdl" ]; then
       cp "${inputs.dms}/core/internal/config/embedded/niri-binds.kdl" "$dms_dir/binds.kdl"
-      sed -i 's/{{TERMINAL_COMMAND}}/alacritty/g' "$dms_dir/binds.kdl"
+      sed -i 's/{{TERMINAL_COMMAND}}/ghostty/g' "$dms_dir/binds.kdl"
     fi
 
     if [ ! -f "$dms_dir/colors.kdl" ]; then

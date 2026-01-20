@@ -37,13 +37,27 @@ in
   # Global Nix settings
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+  };
+  systemd.services.nix-gc.preStart = lib.mkBefore ''
+    ${pkgs.nix}/bin/nix-env --profile /nix/var/nix/profiles/system --delete-generations +3
+  '';
 
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
-    extraPackages = [ pkgs.mangohud ];
-    extraPackages32 = [ pkgs.pkgsi686Linux.mangohud ];
   };
+
+  boot.plymouth = {
+    enable = true;
+    theme = "nixos-bgrt";
+    themePackages = [ pkgs.nixos-bgrt-plymouth ];
+  };
+  boot.initrd.verbose = false;
+  boot.kernelParams = [ "quiet" "splash" ];
+  boot.loader.systemd-boot.configurationLimit = 10;
 
   # Prefer Wayland for Electron/Chromium apps (e.g., VS Code).
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
@@ -92,7 +106,7 @@ in
     i2c-tools
     xwayland-satellite
     nautilus
-    alacritty
+    ghostty
     # dconf-editor
     # gnome-tweaks
     # gnome-extension-manager
