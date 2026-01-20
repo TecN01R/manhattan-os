@@ -104,13 +104,11 @@ in
     "click-method" = "clickfinger";
   };
 
-  # programs.niri.settings.input.focus-follows-mouse.enable = true;
-
   programs.niri.settings.prefer-no-csd = true;
 
   programs.niri.settings.layout = {
     gaps = focusRingWidth;
-    center-focused-column = "always";
+    center-focused-column = "on-overflow";
     focus-ring = {
       enable = true;
       width = focusRingWidth;
@@ -150,17 +148,30 @@ in
 
   xdg.configFile."gtk-4.0/gtk.css".force = true;
 
-  xdg.configFile."niri/dms/binds.kdl" = {
-    source = ./niri-default-binds.kdl;
-    force = true;
-  };
-
-  home.activation.ensureNiriDmsFiles = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+  home.activation.bootstrapDmsNiriDefaults = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     dms_dir="${config.xdg.configHome}/niri/dms"
     mkdir -p "$dms_dir"
-    for file in alttab colors layout outputs wpblur; do
-      if [ ! -e "$dms_dir/$file.kdl" ]; then
-        touch "$dms_dir/$file.kdl"
+
+    if [ ! -f "$dms_dir/binds.kdl" ]; then
+      cp "${inputs.dms}/core/internal/config/embedded/niri-binds.kdl" "$dms_dir/binds.kdl"
+      sed -i 's/{{TERMINAL_COMMAND}}/alacritty/g' "$dms_dir/binds.kdl"
+    fi
+
+    if [ ! -f "$dms_dir/colors.kdl" ]; then
+      cp "${inputs.dms}/core/internal/config/embedded/niri-colors.kdl" "$dms_dir/colors.kdl"
+    fi
+
+    if [ ! -f "$dms_dir/layout.kdl" ]; then
+      cp "${inputs.dms}/core/internal/config/embedded/niri-layout.kdl" "$dms_dir/layout.kdl"
+    fi
+
+    if [ ! -f "$dms_dir/alttab.kdl" ]; then
+      cp "${inputs.dms}/core/internal/config/embedded/niri-alttab.kdl" "$dms_dir/alttab.kdl"
+    fi
+
+    for file in outputs cursor wpblur; do
+      if [ ! -f "$dms_dir/$file.kdl" ]; then
+        : > "$dms_dir/$file.kdl"
       fi
     done
   '';

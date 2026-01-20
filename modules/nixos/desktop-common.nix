@@ -53,9 +53,7 @@ in
   services.fprintd.enable = true;
   services.power-profiles-daemon.enable = true;
   services.upower.enable = true;
-  services.logind.extraConfig = ''
-    LockOnSuspend=yes
-  '';
+  services.logind.settings.Login.LockOnSuspend = "yes";
   hardware.i2c.enable = true;
   users.groups.i2c = { };
 
