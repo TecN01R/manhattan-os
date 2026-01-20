@@ -1,6 +1,7 @@
 { config, pkgs, lib, inputs, ... }:
 
 let
+  kdl = inputs.niri.lib.kdl;
   shellModule = ./shell/noctalia-shell.nix;
 
   myWallpaper = pkgs.stdenv.mkDerivation {
@@ -48,19 +49,26 @@ let
 
 in
 {
-  imports = [ shellModule ];
+  imports = [
+    inputs.niri.homeModules.config
+    (import (inputs.niri + "/default-config.kdl.nix") inputs)
+    shellModule
+  ];
 
-  programs.niri.settings.input.touchpad = {
-    tap = true;
-    "tap-button-map" = "left-right-middle";
-    "click-method" = "clickfinger";
-  };
-
-  programs.niri.settings.prefer-no-csd = true;
-  programs.niri.settings.xwayland-satellite = {
-    enable = true;
-    path = lib.getExe inputs.niri.packages.${pkgs.stdenv.hostPlatform.system}.xwayland-satellite-stable;
-  };
+  programs.niri.config = lib.mkAfter [
+    (kdl.plain "input" [
+      (kdl.plain "touchpad" [
+        (kdl.flag "tap")
+        (kdl.leaf "tap-button-map" "left-right-middle")
+        (kdl.leaf "click-method" "clickfinger")
+      ])
+    ])
+    (kdl.flag "prefer-no-csd")
+    (kdl.plain "xwayland-satellite" [
+      (kdl.leaf "path"
+        (lib.getExe inputs.niri.packages.${pkgs.stdenv.hostPlatform.system}.xwayland-satellite-stable))
+    ])
+  ];
 
   # Wallpaper in your home directory
   home.file.".local/share/backgrounds/my-wallpaper.jpg".source =
