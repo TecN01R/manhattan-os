@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 let
   steamWithExtest = pkgs.steam.override {
@@ -24,4 +24,6 @@ in
     enable = true;
     enableSessionWide = true;
   };
+
+  programs.dank-material-shell.session = lib.importJSON ./dms-session.json;
 }

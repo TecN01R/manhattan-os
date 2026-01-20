@@ -58,10 +58,6 @@ in
   programs.dank-material-shell = {
     enable = true;
     enableCalendarEvents = false;
-    session = {
-      wallpaperPath =
-        "${config.home.homeDirectory}/.local/share/backgrounds/my-wallpaper.jpg";
-    };
     settings = lib.importJSON ./dms-settings.json;
 
     niri = {
@@ -184,6 +180,42 @@ in
         : > "$dms_dir/$file.kdl"
       fi
     done
+  '';
+
+  home.activation.seedDmsWallpaper = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    session_dir="${config.xdg.stateHome}/DankMaterialShell"
+    session_path="$session_dir/session.json"
+    wallpaper_path="${config.home.homeDirectory}/.local/share/backgrounds/my-wallpaper.jpg"
+
+    mkdir -p "$session_dir"
+
+    if [ ! -f "$session_path" ]; then
+      cat > "$session_path" <<'EOF'
+{
+  "wallpaperPath": "__WALLPAPER_PATH__",
+  "configVersion": 2
+}
+EOF
+      sed -i "s|__WALLPAPER_PATH__|$wallpaper_path|g" "$session_path"
+      exit 0
+    fi
+
+    if ${pkgs.jq}/bin/jq -e '(
+      (.perMonitorWallpaper // false) == true
+      or (((.monitorWallpapers // {}) | length) > 0)
+      or (((.wallpaperPath // "") | length) > 0)
+      or ((.perModeWallpaper // false) == true)
+      or (((.wallpaperPathLight // "") | length) > 0)
+      or (((.wallpaperPathDark // "") | length) > 0)
+    )' "$session_path" >/dev/null 2>&1; then
+      exit 0
+    fi
+
+    tmp_path="$(mktemp)"
+    ${pkgs.jq}/bin/jq \
+      --arg path "$wallpaper_path" \
+      '.wallpaperPath = $path | .configVersion = (.configVersion // 2)' \
+      "$session_path" > "$tmp_path" && mv "$tmp_path" "$session_path"
   '';
 
   # GNOME dconf settings (disabled; keep for reference)
