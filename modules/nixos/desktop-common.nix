@@ -58,7 +58,14 @@ in
   
   boot.initrd.verbose = false;
   boot.kernelParams = [ "quiet" "splash" ];
+  boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.loader.systemd-boot.configurationLimit = 10;
+
+  zramSwap = {
+    enable = true;
+    memoryPercent = 25;
+    algorithm = "lz4";
+  };
 
   # Prefer Wayland for Electron/Chromium apps (e.g., VS Code).
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
@@ -68,16 +75,20 @@ in
   networking.networkmanager.enable = true;
 
   services.accounts-daemon.enable = true;
+  services.gvfs.enable = true;
+  services.udisks2.enable = true;
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
   };
   services.fprintd.enable = true;
+  security.pam.services.greetd.fprintAuth = true;
   services.power-profiles-daemon.enable = true;
   services.upower.enable = true;
-  services.logind.settings.Login.LockOnSuspend = "yes";
   hardware.i2c.enable = true;
+  boot.kernelModules = [ "i2c-dev" ];
   users.groups.i2c = { };
+  services.udev.packages = with pkgs; [ openrgb ];
 
   time.timeZone = "America/New_York";
 
@@ -105,11 +116,16 @@ in
     git
     nano
     home-manager
+    starship
     i2c-tools
     xwayland-satellite
     nautilus
+    gnome-text-editor
+    zip
+    unzip
     ghostty
     mangohud
+    fastfetch
     # dconf-editor
     # gnome-tweaks
     # gnome-extension-manager
@@ -124,6 +140,13 @@ in
   programs.niri = {
     enable = true;
     package = pkgs.niri; # <-- use nixpkgs build (cache.nixos.org)
+  };
+
+  programs.gamescope.enable = true;
+
+  programs.starship = {
+    enable = true;
+    presets = [ "gruvbox-rainbow" ];
   };
 
   programs.dank-material-shell.greeter = {

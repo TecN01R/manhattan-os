@@ -12,6 +12,7 @@
     obsidian
     slack
     openrgb
+    goverlay
   ];
 
   programs.dank-material-shell.session = lib.importJSON ./dms-session.json;

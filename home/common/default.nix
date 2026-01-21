@@ -2,8 +2,7 @@
 
 let
   gv = lib.hm.gvariant;
-  focusRingWidth = 2;
-
+  focusRingWidth = 1;
   myWallpaper = pkgs.stdenv.mkDerivation {
     pname = "custom-wallpaper";
     version = "1.0";
@@ -47,6 +46,13 @@ let
     '';
   };
 
+  capitaineGruvboxWhite = pkgs.runCommand "capitaine-cursors-gruvbox-white" { } ''
+    mkdir -p $out/share/icons
+    cp -r \
+      ${pkgs.capitaine-cursors-themed}/share/icons/Capitaine\ Cursors\ \(Gruvbox\)\ -\ White \
+      $out/share/icons/
+  '';
+
 in
 {
   # Import DMS
@@ -65,12 +71,13 @@ in
       enableSpawn = true;     # auto-start DMS when niri starts
       includes = {
         enable = true;
-        override = false;
+        override = true;
         originalFileName = "hm";
         filesToInclude = [
           "alttab"
           "binds"
           "colors"
+          "cursor"
           "layout"
           "outputs"
           "wpblur"
@@ -87,8 +94,21 @@ in
 
   programs.niri.settings.prefer-no-csd = true;
 
+  xdg.userDirs = {
+    enable = true;
+    createDirectories = true;
+  };
+
+  home.pointerCursor = {
+    package = capitaineGruvboxWhite;
+    name = "Capitaine Cursors (Gruvbox) - White";
+    size = 24;
+    gtk.enable = true;
+    x11.enable = true;
+  };
+
   programs.niri.settings.layout = {
-    gaps = focusRingWidth;
+    gaps = 0; # focusRingWidth;
     center-focused-column = "always";
     focus-ring = {
       enable = true;
@@ -102,10 +122,10 @@ in
       matches = [ ];
       excludes = [ ];
       geometry-corner-radius = {
-        top-left = 10.0;
-        top-right = 10.0;
-        bottom-right = 10.0;
-        bottom-left = 10.0;
+        top-left = 8.0;
+        top-right = 8.0;
+        bottom-right = 8.0;
+        bottom-left = 8.0;
       };
       clip-to-geometry = true;
     }
@@ -133,6 +153,34 @@ in
     source = ./dms-themes/gruvboxMaterial/theme.json;
     force = true;
   };
+
+  home.activation.regenerateDmsMatugen = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    theme_json="${config.xdg.configHome}/DankMaterialShell/themes/gruvboxMaterial/theme.json"
+    session_json="${config.xdg.stateHome}/DankMaterialShell/session.json"
+
+    if [ ! -f "$theme_json" ]; then
+      exit 0
+    fi
+
+    primary="$(${pkgs.jq}/bin/jq -r '.dark.primary // .light.primary // empty' "$theme_json")"
+    if [ -z "$primary" ] || [ "$primary" = "null" ]; then
+      exit 0
+    fi
+
+    mode="dark"
+    if [ -f "$session_json" ] && ${pkgs.jq}/bin/jq -e '.isLightMode == true' "$session_json" >/dev/null 2>&1; then
+      mode="light"
+    fi
+
+    export PATH="${pkgs.matugen}/bin:$PATH"
+    ${inputs.dms.packages.${pkgs.stdenv.hostPlatform.system}.dms-shell}/bin/dms matugen generate \
+      --state-dir "${config.xdg.cacheHome}/DankMaterialShell" \
+      --shell-dir "${inputs.dms.packages.${pkgs.stdenv.hostPlatform.system}.dms-shell}/share/quickshell/dms" \
+      --config-dir "${config.xdg.configHome}" \
+      --kind "hex" \
+      --value "$primary" \
+      --mode "$mode"
+  '';
 
   home.activation.bootstrapDmsNiriDefaults = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     dms_dir="${config.xdg.configHome}/niri/dms"

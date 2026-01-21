@@ -15,6 +15,7 @@ in
   home-manager.useUserPackages = false;
   home-manager.extraSpecialArgs = { inherit inputs; };
   home-manager.backupFileExtension = "hm-bak";
+  home-manager.overwriteBackup = true;
   home-manager.users = lib.mapAttrs (name: user:
     let
       userDir = ../../home;

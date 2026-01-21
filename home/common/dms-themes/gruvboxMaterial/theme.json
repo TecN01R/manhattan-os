@@ -5,8 +5,8 @@
   "author": "fontaine",
   "description": "Material version of the popular Gruvbox theme with retro groove colors",
   "dark": {
-    "primary": "#a8b665",
-    "primaryContainer": "#a8b665",
+    "primary": "#7daea3",
+    "primaryContainer": "#7daea3",
     "secondary": "#d7a657",
     "surfaceText": "#ddc7a1",
     "surfaceVariantText": "#d4be98",
@@ -17,8 +17,8 @@
     "info": "#d7a657"
   },
   "light": {
-    "primary": "#6b782e",
-    "primaryContainer": "#6b782e",
+    "primary": "#45707a",
+    "primaryContainer": "#45707a",
     "secondary": "#b37109",
     "surfaceText": "#4e3829",
     "surfaceVariantText": "#644735",
