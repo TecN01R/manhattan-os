@@ -1,4 +1,4 @@
-{ config, pkgs, lib, inputs, ... }:
+{ pkgs, lib, inputs, ... }:
 
 let
   zen = pkgs.wrapFirefox
@@ -34,32 +34,50 @@ in
     inputs.dms.nixosModules.greeter
   ];
 
-  # Global Nix settings
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix = {
+    settings.experimental-features = [ "nix-command" "flakes" ];
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 7d";
+    };
+  };
   nixpkgs.config.allowUnfree = true;
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-  };
-  systemd.services.nix-gc.preStart = lib.mkBefore ''
-    ${pkgs.nix}/bin/nix-env --profile /nix/var/nix/profiles/system --delete-generations +3
-  '';
 
-  hardware.graphics = {
-    enable = true;
-    enable32Bit = true;
+  hardware = {
+    graphics = {
+      enable = true;
+      enable32Bit = true;
+    };
+    bluetooth = {
+      enable = true;
+      powerOnBoot = true;
+    };
+    i2c.enable = true;
   };
 
-  boot.plymouth = {
-    enable = true;
-    theme = "nixos-bgrt";
-    themePackages = [ pkgs.nixos-bgrt-plymouth ];
+  boot = {
+    plymouth = {
+      enable = true;
+      theme = "nixos-bgrt";
+      themePackages = [ pkgs.nixos-bgrt-plymouth ];
+    };
+    initrd.verbose = false;
+    consoleLogLevel = 0;
+    kernelParams = [
+      "quiet"
+      "splash"
+      "loglevel=3"
+      "systemd.show_status=false"
+      "rd.systemd.show_status=false"
+      "udev.log_level=3"
+      "rd.udev.log_level=3"
+      "vt.global_cursor_default=0"
+    ];
+    kernelPackages = pkgs.linuxPackages_latest;
+    loader.systemd-boot.configurationLimit = 10;
+    kernelModules = [ "i2c-dev" ];
   };
-  
-  boot.initrd.verbose = false;
-  boot.kernelParams = [ "quiet" "splash" ];
-  boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.loader.systemd-boot.configurationLimit = 10;
 
   zramSwap = {
     enable = true;
@@ -67,161 +85,89 @@ in
     algorithm = "lz4";
   };
 
-  # Prefer Wayland for Electron/Chromium apps (e.g., VS Code).
-  environment.sessionVariables.NIXOS_OZONE_WL = "1";
-  environment.sessionVariables.MANGOHUD = "1";
+  environment = {
+    sessionVariables = {
+      NIXOS_OZONE_WL = "1";
+      MANGOHUD = "1";
+    };
+    systemPackages = with pkgs; [
+      zen
+      git
+      nano
+      home-manager
+      starship
+      i2c-tools
+      xwayland-satellite
+      nautilus
+      gnome-text-editor
+      zip
+      unzip
+      ghostty
+      mangohud
+      fastfetch
+    ];
+  };
 
-  # Common “desktop-ish” stuff
   networking.networkmanager.enable = true;
 
-  services.accounts-daemon.enable = true;
-  services.gvfs.enable = true;
-  services.udisks2.enable = true;
-  hardware.bluetooth = {
-    enable = true;
-    powerOnBoot = true;
+  services = {
+    accounts-daemon.enable = true;
+    greetd.settings.terminal = {
+      vt = lib.mkForce 7;
+      switch = true;
+    };
+    gvfs.enable = true;
+    udisks2.enable = true;
+    fprintd.enable = true;
+    power-profiles-daemon.enable = true;
+    upower.enable = true;
+    udev.packages = with pkgs; [ openrgb ];
+    flatpak.enable = true;
+    xserver.xkb = {
+      layout = "us";
+      variant = "";
+    };
   };
-  services.fprintd.enable = true;
-  security.pam.services.greetd.fprintAuth = true;
-  services.power-profiles-daemon.enable = true;
-  services.upower.enable = true;
-  hardware.i2c.enable = true;
-  boot.kernelModules = [ "i2c-dev" ];
+
+  security.pam.services.greetd.fprintAuth = false;
+
   users.groups.i2c = { };
-  services.udev.packages = with pkgs; [ openrgb ];
 
   time.timeZone = "America/New_York";
 
-  i18n.defaultLocale = "en_US.UTF-8";
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "en_US.UTF-8";
-    LC_IDENTIFICATION = "en_US.UTF-8";
-    LC_MEASUREMENT = "en_US.UTF-8";
-    LC_MONETARY = "en_US.UTF-8";
-    LC_NAME = "en_US.UTF-8";
-    LC_NUMERIC = "en_US.UTF-8";
-    LC_PAPER = "en_US.UTF-8";
-    LC_TELEPHONE = "en_US.UTF-8";
-    LC_TIME = "en_US.UTF-8";
+  i18n = {
+    defaultLocale = "en_US.UTF-8";
+    extraLocaleSettings = {
+      LC_ADDRESS = "en_US.UTF-8";
+      LC_IDENTIFICATION = "en_US.UTF-8";
+      LC_MEASUREMENT = "en_US.UTF-8";
+      LC_MONETARY = "en_US.UTF-8";
+      LC_NAME = "en_US.UTF-8";
+      LC_NUMERIC = "en_US.UTF-8";
+      LC_PAPER = "en_US.UTF-8";
+      LC_TELEPHONE = "en_US.UTF-8";
+      LC_TIME = "en_US.UTF-8";
+    };
   };
 
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "";
+  programs = {
+    niri = {
+      enable = true;
+      package = pkgs.niri; # <-- use nixpkgs build (cache.nixos.org)
+    };
+    gamescope.enable = true;
+    starship = {
+      enable = true;
+      presets = [ "gruvbox-rainbow" ];
+    };
+    dank-material-shell.greeter = {
+      enable = true;
+      compositor.name = "niri";
+      configHome = "/home/kpmcdole";
+      logs.save = true;
+    };
   };
 
-  # System packages (shared / non-user-specific)
-  environment.systemPackages = with pkgs; [
-    zen
-    git
-    nano
-    home-manager
-    starship
-    i2c-tools
-    xwayland-satellite
-    nautilus
-    gnome-text-editor
-    zip
-    unzip
-    ghostty
-    mangohud
-    fastfetch
-    # dconf-editor
-    # gnome-tweaks
-    # gnome-extension-manager
-
-    # gnomeExtensions.alphabetical-app-grid
-    # gnomeExtensions.just-perfection
-    # gnomeExtensions.blur-my-shell
-    # gnomeExtensions.user-themes
-    # gnomeExtensions.hot-edge
-  ];
-
-  programs.niri = {
-    enable = true;
-    package = pkgs.niri; # <-- use nixpkgs build (cache.nixos.org)
-  };
-
-  programs.gamescope.enable = true;
-
-  programs.starship = {
-    enable = true;
-    presets = [ "gruvbox-rainbow" ];
-  };
-
-  programs.dank-material-shell.greeter = {
-    enable = true;
-    compositor.name = "niri";
-    configHome = "/home/kpmcdole";
-  };
-    
-  # # GNOME Desktop
-  # services.displayManager.gdm.enable = true;
-  # services.desktopManager.gnome.enable = true;
-
-  # services.desktopManager.gnome.extraGSettingsOverrides = ''
-  #   [org.gnome.desktop.interface]
-  #   color-scheme='prefer-dark'
-  #   clock-format='12h'
-  #   clock-show-weekday=true
-  #   show-battery-percentage=true
-
-  #   [org.gnome.shell]
-  #   disable-extension-version-validation=true
-  #   favorite-apps=['org.gnome.Nautilus.desktop', 'firefox.desktop', 'org.gnome.Software.desktop', 'org.gnome.Settings.desktop', 'org.gnome.Ptyxis.desktop']
-  #   enabled-extensions=['AlphabeticalAppGrid@stuarthayhurst', 'blur-my-shell@aunetx', 'just-perfection-desktop@just-perfection', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'hotedge@jonathan.jdoda.ca']
-
-  #   [org.gnome.mutter]
-  #   dynamic-workspaces=false
-  #   experimental-features=['scale-monitor-framebuffer','variable-refresh-rate']
-
-  #   [org.gnome.desktop.wm.preferences]
-  #   num-workspaces=4
-
-  #   [org.gnome.settings-daemon.plugins.color]
-  #   night-light-enabled=true
-  #   night-light-schedule-automatic=true
-  #   night-light-temperature=uint32 4700
-
-  #   [org.gtk.gtk4.settings.file-chooser]
-  #   show-hidden=true
-
-  #   [org.gnome.nautilus.preferences]
-  #   default-folder-viewer='list-view'
-
-  #   [org.gnome.nautilus.list-view]
-  #   default-visible-columns=['name', 'size', 'type', 'date_modified']
-
-  #   [org.gnome.system.location]
-  #   enabled=true
-
-  #   [org.gnome.shell.weather]
-  #   automatic-location=true
-  # '';
-
-  # environment.gnome.excludePackages = with pkgs; [
-  #   epiphany
-  #   gnome-contacts
-  #   gnome-connections
-  #   gnome-clocks
-  #   gnome-maps
-  #   gnome-calculator
-  #   gnome-console
-  #   decibels
-  #   gnome-calendar
-  #   gnome-characters
-  #   gnome-terminal
-  #   totem
-  #   simple-scan
-  #   gnome-tour
-  #   gnome-system-monitor
-  #   gnome-music
-  #   geary
-  #   yelp
-  # ];
-
-  # Flatpak (module provided by nix-flatpak from flake.nix)
-  services.flatpak.enable = true;
   systemd.services.flatpak-repo = {
     wantedBy = [ "multi-user.target" ];
     path = [ pkgs.flatpak ];
