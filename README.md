@@ -62,3 +62,14 @@ Then drop `--impure`.
 ## Per-user overlays
 All normal users get `home/common`.
 If `home/<username>/default.nix` exists, it is layered automatically.
+
+## Settings sync
+On Home Manager activation we run a small sync helper so GUI-editable files stay writable but still land in git:
+- Driver: `home/common/scripts/sync-files.sh`
+- Shared manifest: `home/common/scripts/sync-files.common.sh`
+- Per-user manifest: `home/<username>/scripts/sync-files.user.sh`
+
+Behavior:
+- If a local file exists, it is copied into the repo (authoritative).
+- If a local file is missing but a repo copy exists, it is copied into place.
+- DMS wallpaper is seeded only when no wallpaper is configured (uses `DMS_WALLPAPER_PATH`).
