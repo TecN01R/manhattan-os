@@ -130,6 +130,10 @@ in
     force = true;
   };
 
+  xdg.configFile."ghostty/config".text = ''
+    background-opacity = 0.9
+  '';
+
   home.activation.syncDmsState = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
     export PATH="${lib.makeBinPath [ pkgs.coreutils ]}:$PATH"
     export DMS_WALLPAPER_PATH="${myWallpaper}"

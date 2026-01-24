@@ -11,7 +11,7 @@ Hardware-agnostic NixOS + Home Manager modules intended to be layered on top of 
 This repo exports:
 - `nixosModules.desktop` (UI/app defaults, Niri, greetd)
 - `nixosModules.home-manager` (Home Manager for all normal users)
-- `nixosModules.nvidia` (opt-in NVIDIA support)
+- `nixosModules.legion-laptop` (opt-in Legion laptop support)
 
 Your local machine still provides:
 - `hardware-configuration.nix`
@@ -46,9 +46,9 @@ The flake tries to load:
   ```bash
   sudo nixos-rebuild switch --flake /path/to/manhattan-os#default --impure
   ```
-- NVIDIA enabled:
+- Legion laptop profile:
   ```bash
-  sudo nixos-rebuild switch --flake /path/to/manhattan-os#nvidia --impure
+  sudo nixos-rebuild switch --flake /path/to/manhattan-os#legion-laptop --impure
   ```
 
 ## Pure builds (no `--impure`)

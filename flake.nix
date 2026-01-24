@@ -3,7 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nix-flatpak.url = "github:gmodena/nix-flatpak?ref=v0.6.0";
     zen-browser = {
       url = "github:youwen5/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -42,7 +41,7 @@
       baseModules = localModules ++ [
         self.nixosModules.desktop
         self.nixosModules.home-manager
-        self.nixosModules.nvidia
+        self.nixosModules.legion-laptop
       ];
       mkSystem = extraModules: nixpkgs.lib.nixosSystem {
         inherit system;
@@ -51,7 +50,7 @@
       };
     in {
       nixosConfigurations.default = mkSystem [ ];
-      nixosConfigurations.nvidia = mkSystem [
+      nixosConfigurations.legion-laptop = mkSystem [
         { manhattan.nvidia.enable = true; }
       ];
 
@@ -75,7 +74,7 @@
       nixosModules = {
         desktop = import ./modules/nixos/desktop-common.nix;
         home-manager = import ./modules/nixos/home-manager.nix;
-        nvidia = import ./modules/nixos/nvidia.nix;
+        legion-laptop = import ./modules/nixos/legion-laptop.nix;
       };
 
       homeManagerModules = {

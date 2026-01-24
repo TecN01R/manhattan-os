@@ -26,10 +26,10 @@ let
         ''lockPref("extensions.pocket.enabled", false);''
       ];
     };
+
 in
 {
   imports = [
-    inputs.nix-flatpak.nixosModules.nix-flatpak
     inputs.niri.nixosModules.niri
   ];
 
@@ -121,7 +121,6 @@ in
     power-profiles-daemon.enable = true;
     upower.enable = true;
     udev.packages = with pkgs; [ openrgb ];
-    flatpak.enable = true;
     xserver.xkb = {
       layout = "us";
       variant = "";
@@ -171,11 +170,4 @@ in
     };
   };
 
-  # systemd.services.flatpak-repo = {
-  #   wantedBy = [ "multi-user.target" ];
-  #   path = [ pkgs.flatpak ];
-  #   script = ''
-  #     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-  #   '';
-  # };
 }
