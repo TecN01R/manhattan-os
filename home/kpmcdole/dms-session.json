@@ -63,7 +63,10 @@
   "selectedGpuIndex": 0,
   "nvidiaGpuTempEnabled": false,
   "nonNvidiaGpuTempEnabled": false,
-  "enabledGpuPciIds": [],
+  "enabledGpuPciIds": [
+    "10de:2860",
+    "8086:a788"
+  ],
   "wifiDeviceOverride": "",
   "weatherHourlyDetailed": true,
   "configVersion": 2
