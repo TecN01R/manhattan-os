@@ -28,7 +28,7 @@
   "nightModeEnabled": false,
   "animationSpeed": 1,
   "customAnimationDuration": 500,
-  "wallpaperFillMode": "TileHorizontally",
+  "wallpaperFillMode": "Fill",
   "blurredWallpaperLayer": true,
   "blurWallpaperOnOverview": false,
   "showLauncherButton": true,
@@ -313,15 +313,15 @@
   "screenPreferences": {},
   "showOnLastDisplay": {},
   "niriOutputSettings": {
-    "eDP-1": {
-      "hotCorners": null,
-      "vrrOnDemand": true
-    },
     "DP-1": {
       "vrrOnDemand": false
     },
     "DP-3": {
       "vrrOnDemand": false
+    },
+    "eDP-1": {
+      "hotCorners": null,
+      "vrrOnDemand": true
     }
   },
   "hyprlandOutputSettings": {},
