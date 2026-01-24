@@ -54,7 +54,7 @@
   ],
   "hiddenTrayIds": [],
   "recentColors": [],
-  "showThirdPartyPlugins": false,
+  "showThirdPartyPlugins": true,
   "launchPrefix": "",
   "lastBrightnessDevice": "",
   "brightnessExponentialDevices": {},

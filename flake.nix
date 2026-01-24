@@ -16,6 +16,10 @@
       url = "github:AvengeMedia/DankMaterialShell/stable";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nix-vscode-extensions = {
+      url = "github:nix-community/nix-vscode-extensions";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
@@ -50,6 +54,23 @@
       nixosConfigurations.nvidia = mkSystem [
         { manhattan.nvidia.enable = true; }
       ];
+
+      homeConfigurations.kpmcdole = inputs.home-manager.lib.homeManagerConfiguration {
+        pkgs = import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        };
+        extraSpecialArgs = { inherit inputs; };
+        modules = [
+          inputs.niri.homeModules.config
+          ./home/common
+          ./home/kpmcdole
+          {
+            home.username = "kpmcdole";
+            home.homeDirectory = "/home/kpmcdole";
+          }
+        ];
+      };
 
       nixosModules = {
         desktop = import ./modules/nixos/desktop-common.nix;

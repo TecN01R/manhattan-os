@@ -13,33 +13,10 @@ let
     sha256 = "sha256-YTxyI+vaC5CGQzqMm1enfPh9/1YoqNXAX7TmAscz1U0=";
   };
 
-  gruvboxGtkCustom = pkgs.stdenv.mkDerivation {
-    pname = "gruvbox-gtk-theme-custom";
-    version = "2025-11-15";
-    src = pkgs.fetchFromGitHub {
-      owner = "Fausto-Korpsvart";
-      repo  = "Gruvbox-GTK-Theme";
-      rev   = "578cd220b5ff6e86b078a6111d26bb20ec8c733f";
-      hash  = "sha256-RXoPj/aj9OCTIi8xWatG0QpDAUh102nFOipdSIiqt7o=";
-    };
-    nativeBuildInputs = with pkgs; [
-      sassc
-      gtk-engine-murrine
-      gnome-themes-extra
-    ];
-    installPhase = ''
-      runHook preInstall
-      patchShebangs .
-      mkdir -p $out/share/themes
-      cd themes
-      ./install.sh \
-        -d "$out/share/themes" \
-        --name Gruvbox \
-        --color dark \
-        --size compact \
-        --tweaks medium
-      runHook postInstall
-    '';
+  gruvboxGtkCustom = pkgs.gruvbox-gtk-theme.override {
+    colorVariants = [ "dark" ];
+    sizeVariants = [ "compact" ];
+    tweakVariants = [ "medium" ];
   };
 
   capitaineGruvboxWhite = pkgs.runCommand "capitaine-cursors-gruvbox-white" { } ''
@@ -59,12 +36,15 @@ in
 
   programs.dank-material-shell = {
     enable = true;
+    systemd = {
+      enable = true;
+      target = "niri.service";
+    };
     enableCalendarEvents = false;
-    settings = lib.importJSON ./dms-settings.json;
 
     niri = {
       enableKeybinds = false;
-      enableSpawn = true;     # auto-start DMS when niri starts
+      enableSpawn = false;    # systemd handles startup
       includes = {
         enable = true;
         override = true;
@@ -101,11 +81,6 @@ in
     overview = {
       zoom = 0.6;
     };
-    workspaces = {
-      "01-social".name = "social";
-      "02-coding".name = "coding";
-      "99-gaming".name = "gaming";
-    };
     "window-rules" = [
       {
         matches = [ ];
@@ -117,40 +92,6 @@ in
           bottom-left = 8.0;
         };
         clip-to-geometry = true;
-      }
-      {
-        matches = [
-          { app-id = "^zen$"; }
-          { app-id = "^io\\.github\\.zen_browser\\.zen$"; }
-          { app-id = "^Caprine$"; }
-          { app-id = "^discord$"; }
-          { app-id = "^com\\.discordapp\\.Discord$"; }
-          { app-id = "^slack$"; }
-          { app-id = "^com\\.slack\\.Slack$"; }
-        ];
-        open-on-workspace = "social";
-        open-focused = true;
-      }
-      {
-        matches = [
-          { app-id = "^code$"; }
-          { app-id = "^code-oss$"; }
-          { app-id = "^com\\.visualstudio\\.code$"; }
-          { app-id = "^code-url-handler$"; }
-          { app-id = "^github-desktop$"; }
-          { app-id = "^io\\.github\\.shiftkey\\.desktop$"; }
-        ];
-        open-on-workspace = "coding";
-        open-focused = true;
-      }
-      {
-        matches = [
-          { app-id = "^steam$"; }
-          { app-id = "^com\\.valvesoftware\\.Steam$"; }
-          { app-id = "^steam_app_"; }
-        ];
-        open-on-workspace = "gaming";
-        open-focused = true;
       }
     ];
   };
@@ -170,6 +111,7 @@ in
     gtk.enable = true;
     x11.enable = true;
   };
+  home.file.${config.xresources.path}.force = true;
 
   gtk = {
     enable = true;
@@ -227,6 +169,7 @@ in
 
     if [ ! -f "$dms_dir/binds.kdl" ]; then
       cp "${dmsEmbedded}/niri-binds.kdl" "$dms_dir/binds.kdl"
+      chmod u+rw "$dms_dir/binds.kdl"
       sed -i 's/{{TERMINAL_COMMAND}}/ghostty/g' "$dms_dir/binds.kdl"
     fi
 

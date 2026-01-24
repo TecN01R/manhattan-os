@@ -31,7 +31,6 @@ in
   imports = [
     inputs.nix-flatpak.nixosModules.nix-flatpak
     inputs.niri.nixosModules.niri
-    inputs.dms.nixosModules.greeter
   ];
 
   nix = {
@@ -129,6 +128,16 @@ in
     };
   };
 
+  services.displayManager.dms-greeter = {
+    enable = true;
+    compositor.name = "niri";
+    configHome = "/home/kpmcdole";
+    logs = {
+      save = true;
+      path = "/var/lib/dms-greeter/dms-greeter.log";
+    };
+  };
+
   security.pam.services.greetd.fprintAuth = false;
 
   users.groups.i2c = { };
@@ -160,19 +169,13 @@ in
       enable = true;
       presets = [ "gruvbox-rainbow" ];
     };
-    dank-material-shell.greeter = {
-      enable = true;
-      compositor.name = "niri";
-      configHome = "/home/kpmcdole";
-      logs.save = true;
-    };
   };
 
-  systemd.services.flatpak-repo = {
-    wantedBy = [ "multi-user.target" ];
-    path = [ pkgs.flatpak ];
-    script = ''
-      flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    '';
-  };
+  # systemd.services.flatpak-repo = {
+  #   wantedBy = [ "multi-user.target" ];
+  #   path = [ pkgs.flatpak ];
+  #   script = ''
+  #     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+  #   '';
+  # };
 }
