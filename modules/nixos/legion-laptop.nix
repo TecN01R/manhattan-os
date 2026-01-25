@@ -6,8 +6,8 @@ let
   cpuLowPowerCapScript = ./scripts/cpu-low-power-cap.sh;
   cpuLowPowerCap = "${pkgs.bash}/bin/bash ${cpuLowPowerCapScript}";
 
-  niriPowerDisplayScript = ./scripts/niri-power-display.sh;
-  niriPowerDisplay = "${pkgs.bash}/bin/bash ${niriPowerDisplayScript}";
+  refreshRatePowerProfileScript = ./scripts/refresh-rate-power-profile.sh;
+  refreshRatePowerProfile = "${pkgs.bash}/bin/bash ${refreshRatePowerProfileScript}";
 in
 {
   options.manhattan.nvidia.enable = lib.mkEnableOption "NVIDIA drivers";
@@ -48,24 +48,24 @@ in
       };
     };
 
-    systemd.user.services.niri-power-display = {
-      description = "Adjust niri output mode for power profile";
+    systemd.user.services.refresh-rate-power-profile = {
+      description = "Adjust display refresh rate for power profile";
       wantedBy = [ "default.target" ];
       unitConfig.StartLimitIntervalSec = "0";
       path = [ pkgs.coreutils pkgs.power-profiles-daemon pkgs.niri pkgs.jq ];
       serviceConfig = {
         Type = "oneshot";
-        ExecStart = niriPowerDisplay;
+        ExecStart = refreshRatePowerProfile;
       };
     };
 
-    systemd.user.paths.niri-power-display = {
+    systemd.user.paths.refresh-rate-power-profile = {
       wantedBy = [ "default.target" ];
       unitConfig.StartLimitIntervalSec = "0";
       pathConfig = {
         PathChanged = "/var/lib/power-profiles-daemon/state.ini";
         PathExists = "/var/lib/power-profiles-daemon/state.ini";
-        Unit = "niri-power-display.service";
+        Unit = "refresh-rate-power-profile.service";
       };
     };
   };

@@ -3,7 +3,7 @@ set -euo pipefail
 shopt -s nullglob
 
 log() {
-  echo "niri-power-display: $*"
+  echo "refresh-rate-power-profile: $*"
 }
 
 runtime_dir="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"

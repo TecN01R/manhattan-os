@@ -31,8 +31,8 @@ if [ "$low_power" = "1" ]; then
     all_cpus+=("$cpu_id")
   done
 
-  keep_p_count=2
-  keep_e_count=8
+  keep_p_count=3
+  keep_e_count=6
   cpu0_id="0"
   prefer_p_key=""
   prefer_e_key=""
