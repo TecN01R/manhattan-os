@@ -76,6 +76,9 @@ in
     overview = {
       zoom = 0.6;
     };
+    "hotkey-overlay" = {
+      "skip-at-startup" = true;
+    };
     "window-rules" = [
       {
         matches = [ ];
