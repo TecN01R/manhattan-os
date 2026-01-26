@@ -53,8 +53,8 @@ if [ -z "$psys_dir" ]; then
   exit 0
 fi
 
-psys_long_uw=40000000
-psys_short_uw=55000000
+psys_long_uw=47000000
+psys_short_uw=73000000
 baseline_file="/run/powersave-cap.psys"
 
 read_current_limits() {

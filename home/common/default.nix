@@ -149,6 +149,8 @@ in
   home.packages = with pkgs; [
     gruvboxGtkCustom
     gruvbox-plus-icons
+    libsForQt5.qt5ct
+    qt6Packages.qt6ct
   ];
 
   # Let Home Manager manage itself

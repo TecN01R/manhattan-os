@@ -128,6 +128,8 @@ in
     };
   };
 
+  security.pam.services.greetd.fprintAuth = false;
+
   services.displayManager.dms-greeter = {
     enable = true;
     compositor.name = "niri";
@@ -137,33 +139,6 @@ in
       path = "/var/lib/dms-greeter/dms-greeter.log";
     };
   };
-
-  # Keep fprintd for the DMS/niri lockscreen only.
-  security.pam.services = lib.genAttrs [
-    "chfn"
-    "chpasswd"
-    "chsh"
-    "dms-greeter"
-    "greetd"
-    "groupadd"
-    "groupdel"
-    "groupmems"
-    "groupmod"
-    "login"
-    "passwd"
-    "polkit-1"
-    "runuser"
-    "runuser-l"
-    "su"
-    "sudo"
-    "swaylock"
-    "systemd-run0"
-    "systemd-user"
-    "useradd"
-    "userdel"
-    "usermod"
-    "vlock"
-  ] (_: { fprintAuth = false; });
 
   users.groups.i2c = { };
 
