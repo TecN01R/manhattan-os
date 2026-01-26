@@ -52,7 +52,7 @@ in
       description = "Adjust display refresh rate for power profile";
       wantedBy = [ "default.target" ];
       unitConfig.StartLimitIntervalSec = "0";
-      path = [ pkgs.coreutils pkgs.power-profiles-daemon pkgs.niri pkgs.jq ];
+      path = [ pkgs.coreutils pkgs.gnugrep pkgs.power-profiles-daemon pkgs.niri ];
       serviceConfig = {
         Type = "oneshot";
         ExecStart = refreshRatePowerProfile;

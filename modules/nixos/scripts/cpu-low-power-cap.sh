@@ -35,8 +35,8 @@ done
 if [ -z "$rapl_dir" ]; then
   log "intel-rapl not available; skipping"
 else
-  pl1_uw=24000000
-  pl2_uw=32000000
+  pl1_uw=18000000
+  pl2_uw=25000000
   baseline_pl1_uw=105000000
   baseline_pl2_uw=162000000
 
