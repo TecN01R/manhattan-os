@@ -8,18 +8,28 @@ log() {
 
 get_profile() {
   local profile=""
-  if [ -r /etc/tuned/ppd_base_profile ]; then
+  if command -v powerprofilesctl >/dev/null 2>&1; then
+    profile="$(powerprofilesctl get 2>/dev/null || true)"
+  fi
+  if [ -z "$profile" ] && [ -r /etc/tuned/ppd_base_profile ]; then
     profile="$(cat /etc/tuned/ppd_base_profile 2>/dev/null || true)"
   fi
+  if [ -z "$profile" ] && [ -r /var/lib/power-profiles-daemon/state.ini ]; then
+    while IFS='=' read -r key value; do
+      if [ "$key" = "Profile" ]; then
+        profile="$value"
+        break
+      fi
+    done < /var/lib/power-profiles-daemon/state.ini
+  fi
   profile="$(printf '%s' "$profile" | tr -d '[:space:]')"
+  if [ -z "$profile" ]; then
+    profile="balanced"
+  fi
   printf '%s\n' "$profile"
 }
 
 profile="$(get_profile)"
-if [ -z "$profile" ]; then
-  log "profile missing; skipping"
-  exit 0
-fi
 
 log "profile=$profile"
 
@@ -43,8 +53,8 @@ if [ -z "$psys_dir" ]; then
   exit 0
 fi
 
-psys_long_uw=35000000
-psys_short_uw=50000000
+psys_long_uw=40000000
+psys_short_uw=55000000
 baseline_file="/run/powersave-cap.psys"
 
 read_current_limits() {
