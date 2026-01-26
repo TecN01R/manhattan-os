@@ -55,7 +55,6 @@
           manhattan.nvidia = {
             enable = true;
             cpuLowPowerCap.enable = false;
-            gpuPowerProfile.enable = true;
           };
         }
       ];
