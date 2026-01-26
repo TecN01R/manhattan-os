@@ -75,26 +75,3 @@ else
     log "restored baseline limits"
   fi
 fi
-
-nvidia_driver="/sys/bus/pci/drivers/nvidia"
-if [ -d "$nvidia_driver" ]; then
-  nvidia_power="on"
-  if [ "$low_power" = "1" ]; then
-    nvidia_power="auto"
-  fi
-  for dev_path in /sys/bus/pci/devices/*; do
-    [ -f "$dev_path/vendor" ] || continue
-    vendor="$(cat "$dev_path/vendor")"
-    [ "$vendor" = "0x10de" ] || continue
-    class="$(cat "$dev_path/class")"
-    case "$class" in
-      0x03*) ;;
-      *) continue ;;
-    esac
-
-    if [ -w "$dev_path/power/control" ]; then
-      echo "$nvidia_power" > "$dev_path/power/control" || true
-    fi
-  done
-  log "nvidia power control set to $nvidia_power"
-fi

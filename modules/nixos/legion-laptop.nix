@@ -6,9 +6,6 @@ let
   cpuLowPowerCapScript = ./scripts/cpu-low-power-cap.sh;
   cpuLowPowerCap = "${pkgs.bash}/bin/bash ${cpuLowPowerCapScript}";
 
-  gpuPowerProfileScript = ./scripts/gpu-power-profile.sh;
-  gpuPowerProfile = "${pkgs.bash}/bin/bash ${gpuPowerProfileScript}";
-
   refreshRatePowerProfileScript = ./scripts/refresh-rate-power-profile.sh;
   refreshRatePowerProfile = "${pkgs.bash}/bin/bash ${refreshRatePowerProfileScript}";
 in
@@ -20,81 +17,66 @@ in
       default = true;
       description = "Enable cpu-low-power-cap units.";
     };
-    gpuPowerProfile.enable = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = "Enable GPU power profile toggle (power-saver disables NVIDIA).";
-    };
   };
 
   config = lib.mkIf cfg.enable {
-    services.xserver.videoDrivers = [ "nvidia" ];
+    services.xserver.videoDrivers = [ "modesetting" "nvidia" ];
 
     powerManagement.enable = true;
 
     hardware.nvidia = {
       modesetting.enable = true;
-      powerManagement.enable = false;
-      powerManagement.finegrained = false;
+      powerManagement.enable = true;
+      powerManagement.finegrained = true;
       dynamicBoost.enable = true;
       open = true;
       nvidiaSettings = true;
       package = config.boot.kernelPackages.nvidiaPackages.latest;
-    };
-
-    systemd.services = lib.mkIf cfg.cpuLowPowerCap.enable {
-      cpu-low-power-cap = {
-        description = "Adjust CPU and NVIDIA for power profile";
-        after = [ "tuned-ppd.service" "tuned.service" ];
-        unitConfig.StartLimitIntervalSec = "0";
-        path = [ pkgs.coreutils pkgs.power-profiles-daemon ];
-        serviceConfig = {
-          Type = "oneshot";
-          TimeoutStartSec = "10s";
-          CPUAffinity = "0";
-          ExecStart = cpuLowPowerCap;
+      prime = {
+        offload = {
+          enable = true;
+          enableOffloadCmd = true;
         };
+        intelBusId = "PCI:0:2:0";
+        nvidiaBusId = "PCI:1:0:0";
       };
     };
 
-    systemd.paths = lib.mkIf cfg.cpuLowPowerCap.enable {
-      cpu-low-power-cap = {
-        wantedBy = [ "multi-user.target" ];
-        unitConfig.StartLimitIntervalSec = "0";
-        pathConfig = {
-          PathChanged = "/etc/tuned/ppd_base_profile";
-          PathExists = "/etc/tuned/ppd_base_profile";
-          Unit = "cpu-low-power-cap.service";
+    systemd.services = lib.mkMerge [
+      (lib.mkIf cfg.cpuLowPowerCap.enable {
+        cpu-low-power-cap = {
+          description = "Adjust CPU limits for power profile";
+          after = [ "tuned-ppd.service" "tuned.service" ];
+          unitConfig.StartLimitIntervalSec = "0";
+          path = [ pkgs.coreutils pkgs.power-profiles-daemon ];
+          serviceConfig = {
+            Type = "oneshot";
+            TimeoutStartSec = "10s";
+            CPUAffinity = "0";
+            ExecStart = cpuLowPowerCap;
+          };
         };
-      };
-    };
+      })
+      (lib.mkIf config.hardware.nvidia.dynamicBoost.enable {
+        nvidia-powerd = {
+          unitConfig.ConditionPathExists = "/dev/nvidia0";
+        };
+      })
+    ];
 
-    systemd.services = lib.mkIf cfg.gpuPowerProfile.enable {
-      gpu-power-profile = {
-        description = "Toggle NVIDIA GPU for power profile";
-        after = [ "tuned-ppd.service" "tuned.service" ];
-        unitConfig.StartLimitIntervalSec = "0";
-        path = [ pkgs.coreutils pkgs.power-profiles-daemon ];
-        serviceConfig = {
-          Type = "oneshot";
-          TimeoutStartSec = "10s";
-          CPUAffinity = "0";
-          ExecStart = gpuPowerProfile;
+    systemd.paths = lib.mkMerge [
+      (lib.mkIf cfg.cpuLowPowerCap.enable {
+        cpu-low-power-cap = {
+          wantedBy = [ "multi-user.target" ];
+          unitConfig.StartLimitIntervalSec = "0";
+          pathConfig = {
+            PathChanged = "/etc/tuned/ppd_base_profile";
+            PathExists = "/etc/tuned/ppd_base_profile";
+            Unit = "cpu-low-power-cap.service";
+          };
         };
-      };
-    };
-
-    systemd.paths = lib.mkIf cfg.gpuPowerProfile.enable {
-      gpu-power-profile = {
-        wantedBy = [ "multi-user.target" ];
-        unitConfig.StartLimitIntervalSec = "0";
-        pathConfig = {
-          PathChanged = "/etc/tuned/ppd_base_profile";
-          PathExists = "/etc/tuned/ppd_base_profile";
-          Unit = "gpu-power-profile.service";
-        };
-      };
-    };
+      })
+    ];
 
     systemd.user.services.refresh-rate-power-profile = {
       description = "Adjust display refresh rate for power profile";
