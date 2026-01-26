@@ -3,8 +3,8 @@
 let
   cfg = config.manhattan.nvidia;
 
-  cpuLowPowerCapScript = ./scripts/cpu-low-power-cap.sh;
-  cpuLowPowerCap = "${pkgs.bash}/bin/bash ${cpuLowPowerCapScript}";
+  powersaveCapScript = ./scripts/powersave-cap.sh;
+  powersaveCap = "${pkgs.bash}/bin/bash ${powersaveCapScript}";
 
   refreshRatePowerProfileScript = ./scripts/refresh-rate-power-profile.sh;
   refreshRatePowerProfile = "${pkgs.bash}/bin/bash ${refreshRatePowerProfileScript}";
@@ -12,10 +12,10 @@ in
 {
   options.manhattan.nvidia = {
     enable = lib.mkEnableOption "NVIDIA drivers";
-    cpuLowPowerCap.enable = lib.mkOption {
+    powersaveCap.enable = lib.mkOption {
       type = lib.types.bool;
       default = true;
-      description = "Enable cpu-low-power-cap units.";
+      description = "Enable powersave-cap units.";
     };
   };
 
@@ -43,9 +43,9 @@ in
     };
 
     systemd.services = lib.mkMerge [
-      (lib.mkIf cfg.cpuLowPowerCap.enable {
-        cpu-low-power-cap = {
-          description = "Adjust CPU limits for power profile";
+      (lib.mkIf cfg.powersaveCap.enable {
+        powersave-cap = {
+          description = "Adjust psys limits for power profile";
           after = [ "tuned-ppd.service" "tuned.service" ];
           unitConfig.StartLimitIntervalSec = "0";
           path = [ pkgs.coreutils pkgs.power-profiles-daemon ];
@@ -53,7 +53,7 @@ in
             Type = "oneshot";
             TimeoutStartSec = "10s";
             CPUAffinity = "0";
-            ExecStart = cpuLowPowerCap;
+            ExecStart = powersaveCap;
           };
         };
       })
@@ -65,14 +65,14 @@ in
     ];
 
     systemd.paths = lib.mkMerge [
-      (lib.mkIf cfg.cpuLowPowerCap.enable {
-        cpu-low-power-cap = {
+      (lib.mkIf cfg.powersaveCap.enable {
+        powersave-cap = {
           wantedBy = [ "multi-user.target" ];
           unitConfig.StartLimitIntervalSec = "0";
           pathConfig = {
             PathChanged = "/etc/tuned/ppd_base_profile";
             PathExists = "/etc/tuned/ppd_base_profile";
-            Unit = "cpu-low-power-cap.service";
+            Unit = "powersave-cap.service";
           };
         };
       })

@@ -54,7 +54,7 @@
         {
           manhattan.nvidia = {
             enable = true;
-            cpuLowPowerCap.enable = false;
+            powersaveCap.enable = true;
           };
         }
       ];

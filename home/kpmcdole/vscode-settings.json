@@ -1,4 +1,5 @@
 {
   "workbench.iconTheme": "gruvbox-material-icons",
-  "workbench.colorTheme": "Gruvbox Dark Hard"
+  "workbench.colorTheme": "Gruvbox Dark Hard",
+  "window.controlsStyle": "hidden"
 }
