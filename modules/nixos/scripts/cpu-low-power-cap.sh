@@ -6,15 +6,30 @@ log() {
   echo "cpu-low-power-cap: $*"
 }
 
-profile="balanced"
-if [ -r /var/lib/power-profiles-daemon/state.ini ]; then
-  while IFS='=' read -r key value; do
-    if [ "$key" = "Profile" ]; then
-      profile="$value"
-      break
-    fi
-  done < /var/lib/power-profiles-daemon/state.ini
-fi
+get_profile() {
+  local profile=""
+  if command -v powerprofilesctl >/dev/null 2>&1; then
+    profile="$(powerprofilesctl get 2>/dev/null || true)"
+  fi
+  if [ -z "$profile" ] && [ -r /etc/tuned/ppd_base_profile ]; then
+    profile="$(cat /etc/tuned/ppd_base_profile 2>/dev/null || true)"
+  fi
+  if [ -z "$profile" ] && [ -r /var/lib/power-profiles-daemon/state.ini ]; then
+    while IFS='=' read -r key value; do
+      if [ "$key" = "Profile" ]; then
+        profile="$value"
+        break
+      fi
+    done < /var/lib/power-profiles-daemon/state.ini
+  fi
+  profile="$(printf '%s' "$profile" | tr -d '[:space:]')"
+  if [ -z "$profile" ]; then
+    profile="balanced"
+  fi
+  printf '%s\n' "$profile"
+}
+
+profile="$(get_profile)"
 
 log "profile=$profile"
 
@@ -35,8 +50,8 @@ done
 if [ -z "$rapl_dir" ]; then
   log "intel-rapl not available; skipping"
 else
-  pl1_uw=18000000
-  pl2_uw=25000000
+  pl1_uw=20000000
+  pl2_uw=30000000
   baseline_pl1_uw=105000000
   baseline_pl2_uw=162000000
 

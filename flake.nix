@@ -51,7 +51,13 @@
     in {
       nixosConfigurations.default = mkSystem [ ];
       nixosConfigurations.legion-laptop = mkSystem [
-        { manhattan.nvidia.enable = true; }
+        {
+          manhattan.nvidia = {
+            enable = true;
+            cpuLowPowerCap.enable = false;
+            gpuPowerProfile.enable = true;
+          };
+        }
       ];
 
       homeConfigurations.kpmcdole = inputs.home-manager.lib.homeManagerConfiguration {

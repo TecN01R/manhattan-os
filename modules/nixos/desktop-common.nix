@@ -103,6 +103,7 @@ in
       unzip
       ghostty
       mangohud
+      vulkan-tools
       fastfetch
     ];
   };
@@ -118,7 +119,7 @@ in
     gvfs.enable = true;
     udisks2.enable = true;
     fprintd.enable = true;
-    power-profiles-daemon.enable = true;
+    power-profiles-daemon.enable = false;
     upower.enable = true;
     udev.packages = with pkgs; [ openrgb ];
     xserver.xkb = {
