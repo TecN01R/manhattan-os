@@ -37,8 +37,8 @@ in
     settings.experimental-features = [ "nix-command" "flakes" ];
     gc = {
       automatic = true;
-      dates = "weekly";
-      options = "--delete-older-than 7d";
+      dates = "daily";
+      options = "--delete-older-than 3d";
     };
   };
   nixpkgs.config.allowUnfree = true;
@@ -137,7 +137,32 @@ in
     };
   };
 
-  security.pam.services.greetd.fprintAuth = false;
+  # Keep fprintd for the DMS/niri lockscreen only.
+  security.pam.services = lib.genAttrs [
+    "chfn"
+    "chpasswd"
+    "chsh"
+    "dms-greeter"
+    "greetd"
+    "groupadd"
+    "groupdel"
+    "groupmems"
+    "groupmod"
+    "login"
+    "passwd"
+    "polkit-1"
+    "runuser"
+    "runuser-l"
+    "su"
+    "sudo"
+    "swaylock"
+    "systemd-run0"
+    "systemd-user"
+    "useradd"
+    "userdel"
+    "usermod"
+    "vlock"
+  ] (_: { fprintAuth = false; });
 
   users.groups.i2c = { };
 
