@@ -10,6 +10,38 @@ Personal NixOS flake for host `manhattanos`.
 - `home/kpmcdole.nix`: Home Manager config
 - `seed/home/kpmcdole/...`: one-time seed data for Niri/DMS/wallpaper
 
+## Disk + Mount Prep (Installer)
+
+If partitions/filesystems already exist, you only need to mount them.
+
+1. Identify devices/UUIDs:
+
+```bash
+lsblk -f
+```
+
+2. Mount root and EFI partition:
+
+```bash
+mount /dev/disk/by-uuid/<ROOT-UUID> /mnt
+mkdir -p /mnt/boot
+mount /dev/disk/by-uuid/<EFI-UUID> /mnt/boot
+```
+
+3. Optional: enable swap (if you use a swap partition):
+
+```bash
+swapon /dev/disk/by-uuid/<SWAP-UUID>
+```
+
+If you need a quick fresh-format example (destructive, wipes data):
+
+```bash
+# example only; replace device names for your machine
+mkfs.ext4 /dev/nvme0n1p2
+mkfs.fat -F 32 /dev/nvme0n1p1
+```
+
 ## Fresh Install (From NixOS Installer)
 
 Assumes your target root is mounted at `/mnt` and `/boot` is mounted at `/mnt/boot`.
