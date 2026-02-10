@@ -48,6 +48,14 @@ let
     text = builtins.readFile ../scripts/home-manager/seed-desktop-config.sh;
   };
 
+  syncDesktopSeedConfigScript = pkgs.writeShellApplication {
+    name = "sync-desktop-seed-config";
+    runtimeInputs = with pkgs; [
+      coreutils
+    ];
+    text = builtins.readFile ../scripts/home-manager/sync-desktop-seed-config.sh;
+  };
+
 
 in
 {
@@ -153,6 +161,14 @@ in
     ${lib.getExe seedDesktopConfigScript} \
       ${lib.escapeShellArg (toString seedHome)} \
       ${lib.escapeShellArg homeDir} \
+      ${lib.escapeShellArg config.home.username}
+  '';
+
+  # Sync live desktop config back into seed on each activation/rebuild.
+  home.activation.syncDesktopSeedConfig = lib.hm.dag.entryAfter [ "seedDesktopConfig" ] ''
+    ${lib.getExe syncDesktopSeedConfigScript} \
+      ${lib.escapeShellArg homeDir} \
+      ${lib.escapeShellArg (toString seedHome)} \
       ${lib.escapeShellArg config.home.username}
   '';
 }
