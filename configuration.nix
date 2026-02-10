@@ -70,9 +70,9 @@ nix = {
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
 
-    # kernelPackages = pkgs.linuxPackages_zen;
+    kernelPackages = pkgs.linuxPackages_zen;
     # kernelPackages = pkgs.cachyosKernels."linuxPackages-cachyos-latest-x86_64-v3";
-    kernelPackages = pkgs.linuxKernel.packagesFor manhattanKernel;
+    # kernelPackages = pkgs.linuxKernel.packagesFor manhattanKernel;
     kernel.sysctl = {
       "fs.file-max" = 524288;
 
