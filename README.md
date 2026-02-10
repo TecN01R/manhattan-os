@@ -42,6 +42,45 @@ mkfs.ext4 /dev/nvme0n1p2
 mkfs.fat -F 32 /dev/nvme0n1p1
 ```
 
+## Recreate Current Disk Layout (Destructive)
+
+Current layout on this machine:
+
+- Disk: `nvme0n1` (~1.8 TiB)
+- Partition 1: 1 GiB EFI System Partition (`vfat`, label `EFI`, mounted at `/boot`)
+- Partition 2: remaining space (`ext4`, label `root`, mounted at `/`)
+- No swap partition (swap is `zram` + `/swapfile` in NixOS config)
+
+This fully wipes and recreates that shape:
+
+```bash
+# CHANGE THIS if your target disk is different
+DISK=/dev/nvme0n1
+
+swapoff -a || true
+wipefs -af "$DISK"
+sfdisk --delete "$DISK"
+
+# p1 starts at 2 MiB, size 1 GiB, type EFI
+# p2 uses the rest, type Linux filesystem
+sfdisk "$DISK" <<'EOF'
+label: gpt
+first-lba: 4096
+
+,1GiB,U
+,,L
+EOF
+
+mkfs.fat -F 32 -n EFI "${DISK}p1"
+mkfs.ext4 -F -L root "${DISK}p2"
+
+mount "${DISK}p2" /mnt
+mkdir -p /mnt/boot
+mount "${DISK}p1" /mnt/boot
+```
+
+After that, run `nixos-generate-config --root /mnt` and continue with install below.
+
 ## Fresh Install (From NixOS Installer)
 
 Assumes your target root is mounted at `/mnt` and `/boot` is mounted at `/mnt/boot`.
