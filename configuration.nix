@@ -8,6 +8,14 @@ let
   manhattanKernel = pkgs.cachyosKernels.linux-cachyos-bore-lto.override {
     processorOpt = "x86_64-v3";
   };
+
+  nvidiaPowerdProfileScript = pkgs.writeShellApplication {
+    name = "nvidia-powerd-profile";
+    runtimeInputs = with pkgs; [
+      systemd
+    ];
+    text = builtins.readFile ./scripts/system/nvidia-powerd-profile.sh;
+  };
 in
 {
   nixpkgs.overlays = [
@@ -70,9 +78,9 @@ nix = {
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
 
-    kernelPackages = pkgs.linuxPackages_zen;
+    # kernelPackages = pkgs.linuxPackages_zen;
     # kernelPackages = pkgs.cachyosKernels."linuxPackages-cachyos-latest-x86_64-v3";
-    # kernelPackages = pkgs.linuxKernel.packagesFor manhattanKernel;
+    kernelPackages = pkgs.linuxKernel.packagesFor manhattanKernel;
     kernel.sysctl = {
       "fs.file-max" = 524288;
 
@@ -314,27 +322,10 @@ nix = {
     unitConfig = {
       StartLimitIntervalSec = 0;
     };
-    serviceConfig = { Type = "oneshot"; };
-    script = ''
-      set -eu
-
-      profile=""
-      if [ -r /var/lib/power-profiles-daemon/state.ini ]; then
-        while IFS='=' read -r key value; do
-          if [ "$key" = "Profile" ]; then
-            profile="$value"
-            break
-          fi
-        done < /var/lib/power-profiles-daemon/state.ini
-      fi
-      [ -n "$profile" ] || profile="balanced"
-
-      if [ "$profile" = "power-saver" ]; then
-        systemctl stop nvidia-powerd.service
-      else
-        systemctl start nvidia-powerd.service
-      fi
-    '';
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = lib.getExe nvidiaPowerdProfileScript;
+    };
     wantedBy = [ "multi-user.target" ];
   };
 
@@ -370,7 +361,7 @@ nix = {
       inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
       starship
       power-profiles-daemon
-      # xwayland-satellite
+      xwayland-satellite
       nautilus
       gnome-text-editor
       zip

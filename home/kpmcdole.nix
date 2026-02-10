@@ -21,101 +21,32 @@ let
     tweakVariants = [ "medium" ];
   };
 
-  refreshRateScript = pkgs.writeShellScript "refresh-rate-ac" ''
-    set -eu
+  refreshRateScript = pkgs.writeShellApplication {
+    name = "refresh-rate-switch";
+    runtimeInputs = with pkgs; [
+      coreutils
+      libnotify
+    ];
+    text = builtins.readFile ../scripts/home-manager/refresh-rate-switch.sh;
+  };
 
-    profile=""
-    if [ -r /var/lib/power-profiles-daemon/state.ini ]; then
-      while IFS='=' read -r key value; do
-        if [ "$key" = "Profile" ]; then
-          profile="$value"
-          break
-        fi
-      done < /var/lib/power-profiles-daemon/state.ini
-    fi
-    [ -n "$profile" ] || profile="balanced"
+  # Add this to home.packages if you want the wrapper available in PATH.
+  gamescopeAuto = pkgs.writeShellApplication {
+    name = "gamescope-auto";
+    runtimeInputs = with pkgs; [
+      gamescope
+      jq
+    ];
+    text = builtins.readFile ../scripts/home-manager/gamescope-auto.sh;
+  };
 
-    state="$XDG_RUNTIME_DIR/refresh-rate-ac.last-profile"
-    [ "$profile" = "$(cat "$state" 2>/dev/null || true)" ] && exit 0
-
-    case "$profile" in
-      power-saver)
-        rate="3200x2000@60.001"
-        vrr="off"
-        label="60Hz + VRR off"
-        ;;
-      *)
-        rate="3200x2000@165.002"
-        vrr="on"
-        label="165Hz + VRR on"
-        ;;
-    esac
-
-    socket=""
-    i=0
-    while [ "$i" -lt 100 ]; do
-      for s in "$XDG_RUNTIME_DIR"/niri.wayland-*.sock; do
-        [ -S "$s" ] && socket="$s" && break
-      done
-      [ -n "$socket" ] && break
-      i=$((i + 1))
-      ${pkgs.coreutils}/bin/sleep 0.1
-    done
-    [ -n "$socket" ] || exit 0
-
-    niri() { NIRI_SOCKET="$socket" /run/current-system/sw/bin/niri msg output "eDP-1" "$@"; }
-
-    echo "refresh-rate-ac: profile=$profile rate=$rate vrr=$vrr" >&2
-    niri mode "$rate"
-    niri vrr "$vrr"
-
-    printf '%s\n' "$profile" > "$state"
-
-    ${pkgs.libnotify}/bin/notify-send -a "Refresh Rate Script" -h string:desktop-entry:dms \
-      -i video-display "Display profile changed" "eDP-1: $label" || true
-  '';
-    # gamescopeAuto = pkgs.writeShellScriptBin "gamescope-auto" ''
-    #   set -eu
-
-    #   if [ "$#" -lt 1 ]; then
-    #     echo "usage: gamescope-auto <command> [args...]" >&2
-    #     exit 2
-    #   fi
-    #   socket="''${NIRI_SOCKET:-}"
-    #   if [ -z "$socket" ] && [ -n "''${XDG_RUNTIME_DIR:-}" ]; then
-    #     for s in "$XDG_RUNTIME_DIR"/niri.wayland-*.sock; do
-    #       [ -S "$s" ] || continue
-    #       socket="$s"
-    #       break
-    #     done
-    #   fi
-
-    #   width=""
-    #   height=""
-    #   refresh_millihz=""
-
-    #   if [ -n "$socket" ]; then
-    #     output_json="$(NIRI_SOCKET="$socket" /run/current-system/sw/bin/niri msg --json focused-output 2>/dev/null || true)"
-    #     if [ -n "$output_json" ]; then
-    #       width="$(printf '%s\n' "$output_json" | ${pkgs.jq}/bin/jq -r '.modes[.current_mode].width // empty')"
-    #       height="$(printf '%s\n' "$output_json" | ${pkgs.jq}/bin/jq -r '.modes[.current_mode].height // empty')"
-    #       refresh_millihz="$(printf '%s\n' "$output_json" | ${pkgs.jq}/bin/jq -r '.modes[.current_mode].refresh_rate // empty')"
-    #     fi
-    #   fi
-
-    #   [ -n "$width" ] || width="''${GAMESCOPE_WIDTH:-1920}"
-    #   [ -n "$height" ] || height="''${GAMESCOPE_HEIGHT:-1080}"
-    #   [ -n "$refresh_millihz" ] || refresh_millihz="''${GAMESCOPE_REFRESH_MILLIHZ:-60000}"
-
-    #   refresh_hz=$(( (refresh_millihz + 500) / 1000 ))
-
-    #   exec ${pkgs.gamescope}/bin/gamescope \
-    #     -f \
-    #     -W "$width" -H "$height" \
-    #     -w "$width" -h "$height" \
-    #     -r "$refresh_hz" \
-    #     -- "$@"
-    # '';
+  seedDesktopConfigScript = pkgs.writeShellApplication {
+    name = "seed-desktop-config";
+    runtimeInputs = with pkgs; [
+      coreutils
+    ];
+    text = builtins.readFile ../scripts/home-manager/seed-desktop-config.sh;
+  };
 
 
 in
@@ -186,6 +117,8 @@ in
   };
 
   dconf.settings = {
+    "org/gnome/desktop/interface".color-scheme = "prefer-dark";
+
     "org/gnome/desktop/wm/preferences" = {
       button-layout = ":";
     };
@@ -197,43 +130,29 @@ in
 
   programs.home-manager.enable = true;
 
-  systemd.user.services.refresh-rate-ac = {
+  systemd.user.services.refresh-rate-switch = {
     Unit = {
       Description = "Set refresh rate based on PPD profile";
       StartLimitIntervalSec = 0;
     };
     Service = {
       Type = "oneshot";
-      ExecStart = refreshRateScript;
+      ExecStart = lib.getExe refreshRateScript;
     };
     Install = { WantedBy = [ "default.target" ]; };
   };
 
-  systemd.user.paths.refresh-rate-ac = {
+  systemd.user.paths.refresh-rate-switch = {
     Unit = { Description = "Watch PPD profile for refresh rate"; };
     Path = { PathChanged = "/var/lib/power-profiles-daemon/state.ini"; };
     Install = { WantedBy = [ "default.target" ]; };
   };
 
-  # Seed desktop configuration only when a target file/path is missing.
+  # Seed desktop configuration and keep seeded paths user-editable.
   home.activation.seedDesktopConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    set -eu
-
-    copy_if_missing() {
-      src="$1"
-      dst="$2"
-
-      if [ -e "$dst" ] || [ -L "$dst" ]; then
-        return 0
-      fi
-
-      ${pkgs.coreutils}/bin/mkdir -p "$(${pkgs.coreutils}/bin/dirname "$dst")"
-      ${pkgs.coreutils}/bin/cp -a "$src" "$dst"
-    }
-
-    copy_if_missing "${seedHome}/.config/niri" "${homeDir}/.config/niri"
-    copy_if_missing "${seedHome}/.config/DankMaterialShell" "${homeDir}/.config/DankMaterialShell"
-    copy_if_missing "${seedHome}/.local/state/DankMaterialShell/session.json" "${homeDir}/.local/state/DankMaterialShell/session.json"
-    copy_if_missing "${seedHome}/Pictures/Wallpapers/gruvbox_astro.jpg" "${homeDir}/Pictures/Wallpapers/gruvbox_astro.jpg"
+    ${lib.getExe seedDesktopConfigScript} \
+      ${lib.escapeShellArg (toString seedHome)} \
+      ${lib.escapeShellArg homeDir} \
+      ${lib.escapeShellArg config.home.username}
   '';
 }
