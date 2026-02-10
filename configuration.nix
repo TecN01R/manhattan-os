@@ -356,6 +356,7 @@ nix = {
       micro
       ripgrep
       jq
+      adw-gtk3
       xdg-user-dirs
       xdg-user-dirs-gtk
       inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default

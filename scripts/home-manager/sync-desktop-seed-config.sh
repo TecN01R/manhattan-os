@@ -32,5 +32,9 @@ sync_path() {
 
 sync_path "$home_dir/.config/niri" "$seed_home/.config/niri"
 sync_path "$home_dir/.config/DankMaterialShell" "$seed_home/.config/DankMaterialShell"
+# Do not persist DMS transient markers in seed.
+rm -f \
+  "$seed_home/.config/DankMaterialShell/.changelog-"* \
+  "$seed_home/.config/DankMaterialShell/.firstlaunch"
 sync_path "$home_dir/.local/state/DankMaterialShell/session.json" "$seed_home/.local/state/DankMaterialShell/session.json"
 sync_path "$home_dir/Pictures/Wallpapers/gruvbox_astro.jpg" "$seed_home/Pictures/Wallpapers/gruvbox_astro.jpg"

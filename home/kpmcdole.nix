@@ -41,6 +41,19 @@ let
     text = builtins.readFile ../scripts/home-manager/seed-desktop-config.sh;
   };
 
+  seedZenConfigScript = pkgs.writeShellApplication {
+    name = "seed-zen-config";
+    runtimeInputs = with pkgs; [
+      coreutils
+      findutils
+      curl
+      gnugrep
+      gnused
+      jq
+    ];
+    text = builtins.readFile ../scripts/home-manager/seed-zen-config.sh;
+  };
+
   syncDesktopSeedConfigScript = pkgs.writeShellApplication {
     name = "sync-desktop-seed-config";
     runtimeInputs = with pkgs; [
@@ -129,8 +142,16 @@ in
       ${lib.escapeShellArg config.home.username}
   '';
 
+  # Seed Zen profile wiring (theme/search/extensions) without overwriting existing setup.
+  home.activation.seedZenConfig = lib.hm.dag.entryAfter [ "seedDesktopConfig" ] ''
+    ${lib.getExe seedZenConfigScript} \
+      ${lib.escapeShellArg seedRepoHome} \
+      ${lib.escapeShellArg homeDir} \
+      ${lib.escapeShellArg config.home.username}
+  '';
+
   # Sync live desktop config back into seed on each activation/rebuild.
-  home.activation.syncDesktopSeedConfig = lib.hm.dag.entryAfter [ "seedDesktopConfig" ] ''
+  home.activation.syncDesktopSeedConfig = lib.hm.dag.entryAfter [ "seedZenConfig" ] ''
     ${lib.getExe syncDesktopSeedConfigScript} \
       ${lib.escapeShellArg homeDir} \
       ${lib.escapeShellArg seedRepoHome} \

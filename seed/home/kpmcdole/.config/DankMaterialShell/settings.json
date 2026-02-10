@@ -347,7 +347,7 @@
   "showOnLastDisplay": {},
   "niriOutputSettings": {
     "eDP-1": {
-      "vrrOnDemand": true,
+      "vrrOnDemand": false,
       "hotCorners": null
     }
   },
