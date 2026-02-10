@@ -4,6 +4,7 @@ let
   homeDir = "/home/kpmcdole";
   cursorThemeName = "Capitaine Cursors (Gruvbox) - White";
   seedHome = ../seed/home/kpmcdole;
+  seedRepoHome = "/etc/nixos/seed/home/kpmcdole";
 
   # Filter: only expose that single cursor dir from the full package
   capitaineGruvboxWhite = pkgs.runCommand "capitaine-gruvbox-white-cursor" {} ''
@@ -71,21 +72,6 @@ in
     createDirectories = true;
   };
 
-  home.pointerCursor = {
-    package = capitaineGruvboxWhite;
-    name = cursorThemeName;
-    size = 24;
-
-    gtk.enable = true;
-    x11.enable = true;
-  };
-
-  # (Optional) Some apps/toolkits still consult these env vars.
-  home.sessionVariables = {
-    XCURSOR_THEME = cursorThemeName;
-    XCURSOR_SIZE = "24";
-  };
-
   gtk = {
     enable = true;
 
@@ -105,6 +91,8 @@ in
 
   # Put user-scoped packages here (instead of systemPackages)
   home.packages = with pkgs; [
+    # Keep the cursor theme installed; DMS manages the actual cursor config.
+    capitaineGruvboxWhite
     github-desktop
     blender
     godot
@@ -168,7 +156,7 @@ in
   home.activation.syncDesktopSeedConfig = lib.hm.dag.entryAfter [ "seedDesktopConfig" ] ''
     ${lib.getExe syncDesktopSeedConfigScript} \
       ${lib.escapeShellArg homeDir} \
-      ${lib.escapeShellArg (toString seedHome)} \
+      ${lib.escapeShellArg seedRepoHome} \
       ${lib.escapeShellArg config.home.username}
   '';
 }
