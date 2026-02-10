@@ -1,7 +1,10 @@
 { config, pkgs, lib, inputs, ... }:
 
 let
+  homeDir = "/home/kpmcdole";
   cursorThemeName = "Capitaine Cursors (Gruvbox) - White";
+  seedHome = ../seed/home/kpmcdole;
+  seedMarker = "${homeDir}/.local/state/manhattan-os/seed-v1";
 
   # Filter: only expose that single cursor dir from the full package
   capitaineGruvboxWhite = pkgs.runCommand "capitaine-gruvbox-white-cursor" {} ''
@@ -119,7 +122,7 @@ let
 in
 {
   home.username = "kpmcdole";
-  home.homeDirectory = "/home/kpmcdole";
+  home.homeDirectory = homeDir;
 
   # MUST match your NixOS stateVersion era (doesn't have to equal, but keep sane)
   home.stateVersion = "25.11";
@@ -212,6 +215,34 @@ in
     Path = { PathChanged = "/var/lib/power-profiles-daemon/state.ini"; };
     Install = { WantedBy = [ "default.target" ]; };
   };
-  # required
-  home.activation = { };
+
+  # Seed desktop configuration exactly once, then keep it user-managed.
+  home.activation.seedDesktopConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    set -eu
+
+    marker="${seedMarker}"
+    if [ -e "$marker" ]; then
+      exit 0
+    fi
+
+    copy_if_missing() {
+      src="$1"
+      dst="$2"
+
+      if [ -e "$dst" ] || [ -L "$dst" ]; then
+        return 0
+      fi
+
+      ${pkgs.coreutils}/bin/mkdir -p "$(${pkgs.coreutils}/bin/dirname "$dst")"
+      ${pkgs.coreutils}/bin/cp -a "$src" "$dst"
+    }
+
+    copy_if_missing "${seedHome}/.config/niri" "${homeDir}/.config/niri"
+    copy_if_missing "${seedHome}/.config/DankMaterialShell" "${homeDir}/.config/DankMaterialShell"
+    copy_if_missing "${seedHome}/.local/state/DankMaterialShell/session.json" "${homeDir}/.local/state/DankMaterialShell/session.json"
+    copy_if_missing "${seedHome}/Pictures/Wallpapers/gruvbox_astro.jpg" "${homeDir}/Pictures/Wallpapers/gruvbox_astro.jpg"
+
+    ${pkgs.coreutils}/bin/mkdir -p "$(${pkgs.coreutils}/bin/dirname "$marker")"
+    ${pkgs.coreutils}/bin/touch "$marker"
+  '';
 }
