@@ -13,15 +13,6 @@ let
           "$out/share/icons/${cursorThemeName}"
   '';
 
-  gtkThemeName  = "Gruvbox-Dark-Compact-Medium";
-  iconThemeName = "Gruvbox-Plus-Dark";
-
-  gtkThemePkg = pkgs.gruvbox-gtk-theme.override {
-    colorVariants = [ "dark" ];
-    sizeVariants  = [ "compact" ];
-    tweakVariants = [ "medium" ];
-  };
-
   refreshRateScript = pkgs.writeShellApplication {
     name = "refresh-rate-switch";
     runtimeInputs = with pkgs; [
@@ -45,6 +36,7 @@ let
     name = "seed-desktop-config";
     runtimeInputs = with pkgs; [
       coreutils
+      findutils
     ];
     text = builtins.readFile ../scripts/home-manager/seed-desktop-config.sh;
   };
@@ -72,25 +64,10 @@ in
     createDirectories = true;
   };
 
-  gtk = {
-    enable = true;
-
-    theme = {
-      # Must match the directory name under .../share/themes
-      name = gtkThemeName;
-
-      # This is where the variant customization belongs
-      package = gtkThemePkg;
-    };
-
-    iconTheme = {
-      name = iconThemeName;
-      package = pkgs.gruvbox-plus-icons;
-    };
-  };
-
   # Put user-scoped packages here (instead of systemPackages)
   home.packages = with pkgs; [
+    # Keep icon assets installed; DMS manages GTK settings.ini.
+    gruvbox-plus-icons
     # Keep the cursor theme installed; DMS manages the actual cursor config.
     capitaineGruvboxWhite
     github-desktop
