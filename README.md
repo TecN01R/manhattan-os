@@ -84,24 +84,20 @@ If repo is cloned to `/etc/nixos/manhattan-os`:
 sudo nixos-rebuild switch --flake /etc/nixos/manhattan-os#manhattanos
 ```
 
-## One-Time Niri/DMS Seed Behavior
+## Niri/DMS Seed Behavior
 
-On first Home Manager activation, this repo seeds initial user files from `seed/home/kpmcdole` only if missing:
+On each Home Manager activation, this repo seeds initial user files from `seed/home/kpmcdole` only if missing:
 
 - `~/.config/niri`
 - `~/.config/DankMaterialShell`
 - `~/.local/state/DankMaterialShell/session.json`
 - `~/Pictures/Wallpapers/gruvbox_astro.jpg`
 
-After seeding, marker file is created:
+Existing files are never overwritten, so your edits remain user-managed.
 
-`~/.local/state/manhattan-os/seed-v1`
-
-As long as that marker exists, seeding is skipped and your files remain user-managed.
-
-### Force Reseed
+### Reseed a File
 
 ```bash
-rm ~/.local/state/manhattan-os/seed-v1
+rm -rf ~/.config/niri
 sudo nixos-rebuild switch --flake /etc/nixos/manhattan-os#manhattanos
 ```

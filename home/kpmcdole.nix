@@ -4,7 +4,6 @@ let
   homeDir = "/home/kpmcdole";
   cursorThemeName = "Capitaine Cursors (Gruvbox) - White";
   seedHome = ../seed/home/kpmcdole;
-  seedMarker = "${homeDir}/.local/state/manhattan-os/seed-v1";
 
   # Filter: only expose that single cursor dir from the full package
   capitaineGruvboxWhite = pkgs.runCommand "capitaine-gruvbox-white-cursor" {} ''
@@ -216,14 +215,9 @@ in
     Install = { WantedBy = [ "default.target" ]; };
   };
 
-  # Seed desktop configuration exactly once, then keep it user-managed.
+  # Seed desktop configuration only when a target file/path is missing.
   home.activation.seedDesktopConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     set -eu
-
-    marker="${seedMarker}"
-    if [ -e "$marker" ]; then
-      exit 0
-    fi
 
     copy_if_missing() {
       src="$1"
@@ -241,8 +235,5 @@ in
     copy_if_missing "${seedHome}/.config/DankMaterialShell" "${homeDir}/.config/DankMaterialShell"
     copy_if_missing "${seedHome}/.local/state/DankMaterialShell/session.json" "${homeDir}/.local/state/DankMaterialShell/session.json"
     copy_if_missing "${seedHome}/Pictures/Wallpapers/gruvbox_astro.jpg" "${homeDir}/Pictures/Wallpapers/gruvbox_astro.jpg"
-
-    ${pkgs.coreutils}/bin/mkdir -p "$(${pkgs.coreutils}/bin/dirname "$marker")"
-    ${pkgs.coreutils}/bin/touch "$marker"
   '';
 }
