@@ -23,8 +23,8 @@ case "$profile" in
     ;;
   *)
     rate="3200x2000@165.002"
-    vrr="on"
-    label="165Hz + VRR on"
+    vrr="on-demand"
+    label="165Hz + VRR on-demand"
     ;;
 esac
 

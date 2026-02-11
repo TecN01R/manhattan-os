@@ -597,11 +597,13 @@ window-rule {
 //   open-focused true
 // }
 
-// window-rule {
-//   match app-id=r#"^gamescope$"#
-//   open-on-workspace "gaming"
-//   open-focused true
-// }
+window-rule {
+    match app-id=r#"^gamescope$"#
+    // variable-refresh-rate true
+
+    open-on-workspace "gaming"
+    open-focused true
+}
 
 spawn-at-startup "code"
 spawn-at-startup "sh" "-lc" "until niri msg windows | rg -q 'code'; do sleep 0.1; done; exec ghostty"
@@ -609,9 +611,6 @@ spawn-at-startup "sh" "-lc" "until niri msg windows | rg -qi 'com.mitchellh.ghos
 spawn-sh-at-startup "until systemctl --user is-active --quiet dms.service; do sleep 0.1; done; sleep 5; exec systemd-run --user --unit=caprine-igpu --property=Type=exec --property=PrivateDevices=yes --property=BindPaths=/dev/dri/renderD128:/dev/dri/renderD128 --property=BindPaths=/dev/dri/card1:/dev/dri/card1 --setenv=DRI_PRIME=0 --setenv=__GLX_VENDOR_LIBRARY_NAME=mesa --setenv=__EGL_VENDOR_LIBRARY_FILENAMES=/run/opengl-driver/share/glvnd/egl_vendor.d/50_mesa.json --setenv=VK_ICD_FILENAMES=/run/opengl-driver/share/vulkan/icd.d/intel_icd.x86_64.json -- caprine"
 
 debug {
-  render-drm-device "/dev/dri/renderD128"
-  ignore-drm-device "/dev/dri/renderD129"
-  ignore-drm-device "/dev/dri/card0"
   honor-xdg-activation-with-invalid-serial
   enable-overlay-planes
 }

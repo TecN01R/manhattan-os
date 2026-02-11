@@ -105,6 +105,7 @@ nix = {
       "systemd.show_status=false"
       "rd.udev.log_level=3"
       "transparent_hugepage=madvise"
+      "nvidia-drm.modeset=1"
       "nvidia-drm.fbdev=0"
     ];
 
