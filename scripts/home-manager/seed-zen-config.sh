@@ -146,7 +146,6 @@ if [ -d "$home_dir/.zen" ]; then
     chrome_dir="$profile_dir/chrome"
     user_chrome="$chrome_dir/userChrome.css"
     user_js="$profile_dir/user.js"
-    toolbar_marker="$profile_dir/.nix-seed-zen-toolbar-pinned"
 
     if [ ! -e "$user_chrome" ] && [ ! -L "$user_chrome" ]; then
       mkdir -p "$chrome_dir"
@@ -166,6 +165,11 @@ if [ -d "$home_dir/.zen" ]; then
       ensure_user_pref "$user_js" "browser.search.defaultenginename" "\"DuckDuckGo\""
       ensure_user_pref "$user_js" "browser.search.selectedEngine" "\"DuckDuckGo\""
       ensure_user_pref "$user_js" "extensions.autoDisableScopes" "0"
+      ensure_user_pref "$user_js" "zen.view.compact.enable-at-startup" "true"
+      ensure_user_pref "$user_js" "zen.view.compact.hide-toolbar" "true"
+      ensure_user_pref "$user_js" "zen.view.compact.hide-tabbar" "true"
+      ensure_user_pref "$user_js" "zen.view.compact.show-sidebar-and-toolbar-on-hover" "true"
+      ensure_user_pref "$user_js" "sidebar.visibility" "\"hide-sidebar\""
       chmod u+rw "$user_js" 2>/dev/null || true
       chown "$username" "$user_js" 2>/dev/null || true
     fi
@@ -179,15 +183,9 @@ if [ -d "$home_dir/.zen" ]; then
       "adguardadblocker@adguard.com" \
       "https://addons.mozilla.org/en-US/firefox/downloads/latest/adguard-adblocker/latest.xpi"
 
-    # Pin seeded extension buttons to nav-bar once per profile.
-    if [ ! -e "$toolbar_marker" ] && [ ! -L "$toolbar_marker" ]; then
-      if seed_toolbar_pins "$profile_dir"; then
-        : > "$toolbar_marker"
-        chmod u+rw "$toolbar_marker" 2>/dev/null || true
-        chown "$username" "$toolbar_marker" 2>/dev/null || true
-      else
-        echo "warning: failed to seed Zen toolbar pins in $profile_dir" >&2
-      fi
+    # Keep extension buttons present in the nav-bar when missing.
+    if ! seed_toolbar_pins "$profile_dir"; then
+      echo "warning: failed to seed Zen toolbar pins in $profile_dir" >&2
     fi
 
   done < <(find "$home_dir/.zen" -mindepth 1 -maxdepth 1 -type d -print0)

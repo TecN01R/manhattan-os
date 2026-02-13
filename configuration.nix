@@ -349,7 +349,7 @@ nix = {
       MANGOHUD = "1";
 
       # System-wide cursor defaults
-      # XCURSOR_THEME = cursorThemeName;
+      # XCURSOR_THEME = "Capitaine Cursors (Gruvbox) - White";
       # XCURSOR_SIZE = "24";
     };
     systemPackages = with pkgs; [
@@ -357,7 +357,10 @@ nix = {
       micro
       ripgrep
       jq
+      adwaita-icon-theme
       adw-gtk3
+      gruvbox-plus-icons
+      capitaine-cursors-themed
       xdg-user-dirs
       xdg-user-dirs-gtk
       inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default

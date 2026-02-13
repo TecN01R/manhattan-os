@@ -37,6 +37,9 @@ let
     runtimeInputs = with pkgs; [
       coreutils
       findutils
+      gnugrep
+      gnused
+      jq
     ];
     text = builtins.readFile ../scripts/home-manager/seed-desktop-config.sh;
   };
@@ -61,7 +64,6 @@ let
     ];
     text = builtins.readFile ../scripts/home-manager/sync-desktop-seed-config.sh;
   };
-
 
 in
 {
@@ -132,6 +134,34 @@ in
     Unit = { Description = "Watch PPD profile for refresh rate"; };
     Path = { PathChanged = "/var/lib/power-profiles-daemon/state.ini"; };
     Install = { WantedBy = [ "default.target" ]; };
+  };
+
+  systemd.user.services.zen-config-sync = {
+    Unit = {
+      Description = "Backfill Zen profile extensions and prefs";
+    };
+    Service = {
+      Type = "oneshot";
+      ExecStart = ''
+        ${lib.getExe seedZenConfigScript} \
+          ${lib.escapeShellArg seedRepoHome} \
+          ${lib.escapeShellArg homeDir} \
+          ${lib.escapeShellArg config.home.username}
+      '';
+    };
+    Install = { WantedBy = [ "default.target" ]; };
+  };
+
+  systemd.user.timers.zen-config-sync = {
+    Unit = {
+      Description = "Retry Zen profile sync periodically";
+    };
+    Timer = {
+      OnBootSec = "2m";
+      OnUnitActiveSec = "45m";
+      Unit = "zen-config-sync.service";
+    };
+    Install = { WantedBy = [ "timers.target" ]; };
   };
 
   # Seed desktop configuration and keep seeded paths user-editable.

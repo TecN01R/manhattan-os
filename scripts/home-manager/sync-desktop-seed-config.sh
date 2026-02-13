@@ -32,6 +32,8 @@ sync_path() {
 
 sync_path "$home_dir/.config/niri" "$seed_home/.config/niri"
 sync_path "$home_dir/.config/DankMaterialShell" "$seed_home/.config/DankMaterialShell"
+sync_path "$home_dir/.config/gtk-3.0" "$seed_home/.config/gtk-3.0"
+sync_path "$home_dir/.config/gtk-4.0" "$seed_home/.config/gtk-4.0"
 # Do not persist DMS transient markers in seed.
 rm -f \
   "$seed_home/.config/DankMaterialShell/.changelog-"* \

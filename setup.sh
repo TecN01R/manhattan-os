@@ -51,6 +51,7 @@ DISK="/dev/nvme0n1"
 MOUNT_ROOT="/mnt"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HOST_NAME="manhattanos"
+INSTALL_USER="kpmcdole"
 RUN_INSTALL=0
 ASSUME_YES=0
 
@@ -97,7 +98,7 @@ if [[ ${EUID:-$(id -u)} -ne 0 ]]; then
   exit 1
 fi
 
-for cmd in lsblk wipefs sfdisk mkfs.fat mkfs.ext4 mount mkdir cp nixos-generate-config findmnt umount swapoff; do
+for cmd in lsblk wipefs sfdisk mkfs.fat mkfs.ext4 mount mkdir cp git nixos-generate-config findmnt umount swapoff; do
   require_cmd "$cmd"
 done
 
@@ -172,7 +173,13 @@ cp "$MOUNT_ROOT/etc/nixos/hardware-configuration.nix" "$generated_hw"
 mkdir -p "$MOUNT_ROOT/etc/nixos"
 find "$MOUNT_ROOT/etc/nixos" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
 cp -a "$REPO_ROOT"/. "$MOUNT_ROOT/etc/nixos/"
-rm -rf "$MOUNT_ROOT/etc/nixos/.git"
+if [[ ! -d "$MOUNT_ROOT/etc/nixos/.git" ]]; then
+  git -C "$MOUNT_ROOT/etc/nixos" init >/dev/null
+  src_origin="$(git -C "$REPO_ROOT" remote get-url origin 2>/dev/null || true)"
+  if [[ -n "$src_origin" ]]; then
+    git -C "$MOUNT_ROOT/etc/nixos" remote add origin "$src_origin" >/dev/null 2>&1 || true
+  fi
+fi
 cp "$generated_hw" "$MOUNT_ROOT/etc/nixos/hardware-configuration.nix"
 rm -f "$generated_hw"
 
@@ -181,12 +188,22 @@ echo "Prepared target at: $MOUNT_ROOT/etc/nixos"
 echo "Hardware config updated at: $MOUNT_ROOT/etc/nixos/hardware-configuration.nix"
 
 if [[ $RUN_INSTALL -eq 1 ]]; then
+  require_cmd nixos-enter
+
   echo
   echo "Running nixos-install..."
   if [[ "$MOUNT_ROOT" == "/mnt" ]]; then
     nixos-install --flake "$MOUNT_ROOT/etc/nixos#$HOST_NAME"
   else
     nixos-install --root "$MOUNT_ROOT" --flake "$MOUNT_ROOT/etc/nixos#$HOST_NAME"
+  fi
+
+  echo
+  if nixos-enter --root "$MOUNT_ROOT" -c "id -u '$INSTALL_USER' >/dev/null 2>&1"; then
+    echo "Set password for '$INSTALL_USER':"
+    nixos-enter --root "$MOUNT_ROOT" -c "passwd '$INSTALL_USER'"
+  else
+    echo "warning: user '$INSTALL_USER' not found in target, skipping user password prompt." >&2
   fi
 else
   echo
