@@ -2,21 +2,15 @@
 
 let
   homeDir = "/home/kpmcdole";
-  cursorThemeName = "Capitaine Cursors (Gruvbox) - White";
   seedHome = ../seed/home/kpmcdole;
   seedRepoHome = "/etc/nixos/seed/home/kpmcdole";
-
-  # Filter: only expose that single cursor dir from the full package
-  capitaineGruvboxWhite = pkgs.runCommand "capitaine-gruvbox-white-cursor" {} ''
-    mkdir -p "$out/share/icons"
-    ln -s "${pkgs.capitaine-cursors-themed}/share/icons/${cursorThemeName}" \
-          "$out/share/icons/${cursorThemeName}"
-  '';
 
   refreshRateScript = pkgs.writeShellApplication {
     name = "refresh-rate-switch";
     runtimeInputs = with pkgs; [
       coreutils
+      gnused
+      gnome-randr
       libnotify
     ];
     text = builtins.readFile ../scripts/home-manager/refresh-rate-switch.sh;
@@ -26,10 +20,7 @@ let
     name = "seed-desktop-config";
     runtimeInputs = with pkgs; [
       coreutils
-      findutils
-      gnugrep
-      gnused
-      jq
+      glib
     ];
     text = builtins.readFile ../scripts/home-manager/seed-desktop-config.sh;
   };
@@ -48,11 +39,11 @@ let
   };
 
   syncDesktopSeedConfigScript = pkgs.writeShellApplication {
-    name = "sync-desktop-seed-config";
+    name = "sync-desktop-config";
     runtimeInputs = with pkgs; [
       coreutils
     ];
-    text = builtins.readFile ../scripts/home-manager/sync-desktop-seed-config.sh;
+    text = builtins.readFile ../scripts/home-manager/sync-desktop-config.sh;
   };
 
 in
@@ -71,10 +62,6 @@ in
 
   # Put user-scoped packages here (instead of systemPackages)
   home.packages = with pkgs; [
-    # Keep icon assets installed; DMS manages GTK settings.ini.
-    gruvbox-plus-icons
-    # Keep the cursor theme installed; DMS manages the actual cursor config.
-    capitaineGruvboxWhite
     github-desktop
     blender
     godot
@@ -97,20 +84,16 @@ in
   dconf.settings = {
     "org/gnome/desktop/interface".color-scheme = "prefer-dark";
 
-    "org/gnome/desktop/wm/preferences" = {
-      button-layout = ":";
-    };
+    # "org/gnome/desktop/wm/preferences" = {
+    #   button-layout = ":";
+    # };
   };
-
-  xdg.configFile."ghostty/config".text = ''
-    background-opacity = 0.95
-  '';
 
   programs.home-manager.enable = true;
 
   systemd.user.services.refresh-rate-switch = {
     Unit = {
-      Description = "Set refresh rate based on PPD profile";
+      Description = "Set GNOME refresh rate based on PPD profile";
       StartLimitIntervalSec = 0;
     };
     Service = {

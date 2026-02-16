@@ -135,31 +135,20 @@ seed_file_if_missing \
   "$seed_home/.config/zen-extension-exports/AdGuard-Settings.json" \
   "$home_dir/Downloads/AdGuard-Settings.json"
 
-# Seed Zen profile tweaks for theme wiring, default search, and selected extensions.
+# Seed Zen profile tweaks for default search and selected extensions.
 if [ -d "$home_dir/.zen" ]; then
-  dms_zen_css="file://$home_dir/.config/DankMaterialShell/zen.css"
   while IFS= read -r -d '' profile_dir; do
     if [ ! -f "$profile_dir/prefs.js" ]; then
       continue
     fi
 
-    chrome_dir="$profile_dir/chrome"
-    user_chrome="$chrome_dir/userChrome.css"
     user_js="$profile_dir/user.js"
-
-    if [ ! -e "$user_chrome" ] && [ ! -L "$user_chrome" ]; then
-      mkdir -p "$chrome_dir"
-      printf '%s\n' "@import url(\"$dms_zen_css\");" > "$user_chrome"
-    elif [ -f "$user_chrome" ] && ! grep -Fq "$dms_zen_css" "$user_chrome"; then
-      printf '%s\n' "@import url(\"$dms_zen_css\");" >> "$user_chrome"
-    fi
 
     if [ ! -e "$user_js" ] && [ ! -L "$user_js" ]; then
       : > "$user_js"
     fi
 
     if [ -f "$user_js" ]; then
-      ensure_user_pref "$user_js" "toolkit.legacyUserProfileCustomizations.stylesheets" "true"
       ensure_user_pref "$user_js" "browser.search.suggest.enabled" "true"
       ensure_user_pref "$user_js" "browser.urlbar.suggest.searches" "true"
       ensure_user_pref "$user_js" "browser.search.defaultenginename" "\"DuckDuckGo\""

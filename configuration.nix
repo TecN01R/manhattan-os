@@ -5,9 +5,9 @@
 { config, lib, pkgs, inputs, ... }:
 
 let
-  manhattanKernel = pkgs.cachyosKernels.linux-cachyos-bore-lto.override {
-    processorOpt = "x86_64-v3";
-  };
+  # manhattanKernel = pkgs.cachyosKernels.linux-cachyos-bore-lto.override {
+  #   processorOpt = "x86_64-v3";
+  # };
 
   nvidiaPowerdProfileScript = pkgs.writeShellApplication {
     name = "nvidia-powerd-profile";
@@ -20,9 +20,7 @@ in
 {
   nixpkgs.overlays = [
     # CachyOS kernel overlay (pinned = matches repo versions + best cache hit rate)
-    inputs.nix-cachyos-kernel.overlays.pinned
-
-    inputs.niri.overlays.niri
+    # inputs.nix-cachyos-kernel.overlays.pinned
 
     (final: prev: {
       winetricks = prev.winetricks.overrideAttrs (old: rec {
@@ -33,16 +31,6 @@ in
           rev = version;
           hash = "sha256-uIBVESebsH7rXnxWd/qlrZxcG7Y486PctHzcLz29HDk=";
         };
-      });
-    })
-    # Override the display of the "systemctl --user import-environment" command in niri-session to prevent it from printing warnings about missing environment variables when run in a non-interactive context (e.g. from a display manager greeter).
-    (final: prev: {
-      niri-unstable = prev.niri-unstable.overrideAttrs (old: {
-        postFixup = (old.postFixup or "") + ''
-          substituteInPlace $out/bin/niri-session \
-            --replace "systemctl --user import-environment" \
-              "if [ -t 2 ]; then systemctl --user import-environment 2>&1 | ${prev.systemd}/bin/systemd-cat -t niri-session -p warning; else systemctl --user import-environment; fi"
-        '';
       });
     })
   ];
@@ -58,12 +46,12 @@ nix = {
     max-jobs = 5;
     cores = 24;
 
-    substituters = lib.mkBefore [
-      "https://attic.xuyh0120.win/lantian"
-    ];
-    trusted-public-keys = lib.mkBefore [
-      "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
-    ];
+    # substituters = lib.mkBefore [
+    #   "https://attic.xuyh0120.win/lantian"
+    # ];
+    # trusted-public-keys = lib.mkBefore [
+    #   "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
+    # ];
   };
 
   gc = {
@@ -78,9 +66,9 @@ nix = {
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
 
-    # kernelPackages = pkgs.linuxPackages_zen;
+    kernelPackages = pkgs.linuxPackages_zen;
     # kernelPackages = pkgs.cachyosKernels."linuxPackages-cachyos-latest-x86_64-v3";
-    kernelPackages = pkgs.linuxKernel.packagesFor manhattanKernel;
+    # kernelPackages = pkgs.linuxKernel.packagesFor manhattanKernel;
     kernel.sysctl = {
       "fs.file-max" = 524288;
 
@@ -356,25 +344,26 @@ nix = {
       micro
       ripgrep
       jq
-      adwaita-icon-theme
+      # adwaita-icon-theme
       adw-gtk3
-      gruvbox-plus-icons
-      capitaine-cursors-themed
+      morewaita-icon-theme
+      # gruvbox-plus-icons
+      # capitaine-cursors-themed
       xdg-user-dirs
       xdg-user-dirs-gtk
       inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
-      starship
+      # starship
       power-profiles-daemon
-      xwayland-satellite
       nautilus
       gnome-text-editor
+      dconf-editor
       zip
       unzip
       ghostty
       mangohud
       vulkan-tools
       fastfetch
-      kdePackages.qt6ct
+      # kdePackages.qt6ct
       lsfg-vk
       android-tools
       papers
@@ -382,42 +371,18 @@ nix = {
   };
 
   programs = {
-    niri = {
-      enable = true;
-      package = pkgs.niri-unstable; 
-    };
     starship = {
       enable = true;
       presets = [ "gruvbox-rainbow" ];
     };
     gamescope.enable = true;
     dconf.enable = true;
-    dank-material-shell = {
-      enable = true;
-      systemd.enable = true;
-      enableCalendarEvents = false;
-      # package = inputs.dms.packages.${pkgs.stdenv.hostPlatform.system}.default;
-    };
     steam = {
       enable = true;
       remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
       localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
       
       protontricks.enable = true;
-    };
-  };
-
-  services.displayManager.dms-greeter = {
-    enable = true;
-    compositor.name = "niri";
-
-    # Sync your user's DankMaterialShell theme with the greeter. You'll probably want this
-    configHome = "/home/kpmcdole";
-
-    # Save the logs to a file
-    logs = {
-      save = true; 
-      path = "/tmp/dms-greeter.log";
     };
   };
 
@@ -449,29 +414,27 @@ nix = {
     '';
   };
 
-  systemd.user.services.niri-flake-polkit.enable = false;
+  services.displayManager = {
+    gdm = {
+      enable = true;
+      wayland = true;
+    };
+    defaultSession = "gnome";
+  };
 
-  # services.displayManager = {
-  #   gdm = {
-  #     enable = true;
-  #     wayland = true;
-  #   };
-  #   defaultSession = "gnome";
-  # };
+  services.desktopManager.gnome = {
+    enable = true;
+    extraGSettingsOverrides = ''
+      [org.gnome.mutter]
+      experimental-features=['scale-monitor-framebuffer','xwayland-native-scaling','variable-refresh-rate']
+    '';
+  };
 
-  # services.desktopManager.gnome = {
-  #   enable = true;
-  #   extraGSettingsOverrides = ''
-  #     [org.gnome.mutter]
-  #     experimental-features=['scale-monitor-framebuffer','xwayland-native-scaling','variable-refresh-rate']
-  #   '';
-  # };
+  programs.xwayland.enable = true;
 
-  # programs.xwayland.enable = true;
-
-  # # Keep GNOME lighter for testing
-  # services.gnome.core-apps.enable = false;
-  # services.gnome.games.enable = false;
+  # Keep GNOME lighter for testing
+  services.gnome.core-apps.enable = false;
+  services.gnome.games.enable = false;
 
   
   # This value determines the NixOS release from which the default

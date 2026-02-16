@@ -3,20 +3,10 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
+    # nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
     
     home-manager = {
       url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    dms = {
-      url = "github:AvengeMedia/DankMaterialShell/stable";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    niri = {
-      url = "github:sodiboo/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -31,8 +21,6 @@
       system = "x86_64-linux";
       specialArgs = { inherit inputs; };
       modules = [
-        inputs.dms.nixosModules.dank-material-shell
-        inputs.niri.nixosModules.niri
         home-manager.nixosModules.home-manager
         
         ./configuration.nix
