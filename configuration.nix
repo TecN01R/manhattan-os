@@ -346,7 +346,6 @@ nix = {
     # variables.NIX_CFLAGS_COMPILE = "-g0";
     sessionVariables = {
       NIXOS_OZONE_WL = "1";
-      MANGOHUD = "1";
 
       # System-wide cursor defaults
       # XCURSOR_THEME = "Capitaine Cursors (Gruvbox) - White";

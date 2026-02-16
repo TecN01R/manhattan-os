@@ -21,17 +21,7 @@ let
     ];
     text = builtins.readFile ../scripts/home-manager/refresh-rate-switch.sh;
   };
-
-  # Add this to home.packages if you want the wrapper available in PATH.
-  gamescopeAuto = pkgs.writeShellApplication {
-    name = "gamescope-auto";
-    runtimeInputs = with pkgs; [
-      gamescope
-      jq
-    ];
-    text = builtins.readFile ../scripts/home-manager/gamescope-auto.sh;
-  };
-
+  
   seedDesktopConfigScript = pkgs.writeShellApplication {
     name = "seed-desktop-config";
     runtimeInputs = with pkgs; [
